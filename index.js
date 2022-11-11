@@ -15,4 +15,6 @@ app.use("/bookmyshow", require("./routes/custRoutes"));
 app.use("/movies", require("./routes/movieRoutes"));
 app.use("/bookmyshow", require("./routes/theatreRoutes"));
 
+app.use(errorHandler);
+
 app.listen(port, () => console.log(`Server connected on ${port}`));
