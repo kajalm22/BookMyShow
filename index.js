@@ -1,5 +1,4 @@
 const express = require("express");
-
 const connectDB = require("./config/db");
 const dotenv = require("dotenv").config();
 
@@ -14,5 +13,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/bookmyshow", require("./routes/custRoutes"));
 app.use("/movies", require("./routes/movieRoutes"));
+app.use("/bookmyshow", require("./routes/theatreRoutes"));
 
 app.listen(port, () => console.log(`Server connected on ${port}`));

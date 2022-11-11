@@ -29,13 +29,12 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
-      //   Theatre,
+      //Theatre,
     });
   } else {
     res.status(400);
     throw new Error("Something went wrong");
   }
-
   res.status(200).json(newMovie);
 });
 
