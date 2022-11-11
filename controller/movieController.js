@@ -10,16 +10,6 @@ const addMovie = asyncHandler(async (req, res) => {
   //     throw new Error("please add a movie name");
   //   }
 
-  //   const newMovie = await Movies.create({
-  //     title: req.body.title,
-  //     description: req.body.description,
-  //     releaseDate: req.body.releaseDate,
-  //     duration: req.body.duration,
-  //     genre: req.body.genre,
-  //     amount: req.body.amount,
-  //     theatre: req.body.theatre,
-  //   });
-
   const newMovie = await Movies.create({
     title,
     description,
