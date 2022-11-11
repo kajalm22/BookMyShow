@@ -4,6 +4,6 @@ const router = express.Router();
 
 router.route("/theatre/home").post(newTheatre);
 
-router.route("/theatres").post(getTheatre);
+router.route("/theatres/lists").get(getTheatre);
 
 module.exports = router;

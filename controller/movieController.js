@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
+const Theatre = require("../model/theatreModel");
 
 const addMovie = asyncHandler(async (req, res) => {
   const { title, description, releaseDate, duration, genre, amount, Theatre } =
@@ -17,7 +18,7 @@ const addMovie = asyncHandler(async (req, res) => {
     genre,
     duration,
     amount,
-    //Theatre,
+    Theatre,
   });
 
   if (newMovie) {
@@ -29,7 +30,7 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
-      //Theatre,
+      Theatre,
     });
   } else {
     res.status(400);
