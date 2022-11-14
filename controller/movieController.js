@@ -76,7 +76,7 @@ const deleteMovies = asyncHandler(async (req, res) => {
     throw new Error("Movie not found. Please check the Movie Id given");
   }
 
-  const deletedMovie = await Movies.remove();
+  const deletedMovie = await Movies.deleteOne();
   res.status(200).json({ message: "Movie details have been now deleted!" });
 });
 module.exports = { addMovie, getMovies, updateMovies, deleteMovies };

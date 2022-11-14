@@ -70,7 +70,7 @@ const updateCustomer = asyncHandler(async (req, res) => {
   }
 
   const updatedCustomer = await Customers.findByIdAndUpdate(
-    req.paramsid,
+    req.params.id,
     req.body,
     { new: true }
   );
