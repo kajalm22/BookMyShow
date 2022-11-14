@@ -47,7 +47,7 @@ const addMovie = asyncHandler(async (req, res) => {
     properties: {
       title: { type: "string" },
       description: { type: "string" },
-      releaseDate: { type: "date-time" },
+      releaseDate: { type: "number" },
       duration: { type: "number" },
       genre: { type: "string" },
       amount: { type: "number" },

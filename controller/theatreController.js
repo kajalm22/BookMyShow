@@ -30,8 +30,14 @@ const addTheatre = asyncHandler(async (req, res) => {
   const schema = {
     type: "object",
     properties: {
-      theatreName: { type: "string" },
-      address: { type: "string" },
+      theatreName: {
+        type: "string",
+        errorMessage: "CUSTOM ERROR: theatre name must be a string",
+      },
+      address: {
+        type: "string",
+        errorMessage: "CUSTOM ERROR: address must be a string",
+      },
     },
     required: ["theatreName "],
     additionalProperties: true,
