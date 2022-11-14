@@ -1,24 +1,30 @@
 const asyncHandler = require("express-async-handler");
 const Theatre = require("../model/theatreModel");
 
-const newTheatre = asyncHandler(async (req, res) => {
-  if (!req.body.text) {
-    res.status(400);
+const addTheatre = asyncHandler(async (req, res) => {
+  const { theatreName, address } = req.body;
 
-    throw new Error("Please add a text field");
-  }
-
-  const theatre = await Theatre.create({
-    name: req.body.name,
-    address: req.body.address,
+  const newTheatre = await Theatre.create({
+    theatreName,
+    address,
   });
 
-  res.status(200).json(theatre);
+  if (newTheatre) {
+    res.status(201).json({
+      message: "Theatre has been added successfully",
+      theatreName,
+      address,
+    });
+  } else {
+    res.status(400);
+
+    throw new Error("Something went wrong while addind theatre details");
+  }
 });
 
 const getTheatre = asyncHandler(async (req, res) => {
   const getTheatres = await Theatre.find();
-  res.json(200).json(getTheatres);
+  res.status(200).json(getTheatres);
 });
 
-module.exports = { newTheatre, getTheatre };
+module.exports = { addTheatre, getTheatre };

@@ -70,13 +70,12 @@ const updateCustomer = asyncHandler(async (req, res) => {
   }
 
   const updatedCustomer = await Customers.findByIdAndUpdate(
+    req.paramsid,
     req.body,
-    req.params.id,
     { new: true }
   );
   if (updatedCustomer) {
-    res.status(200);
-    res.json(updatedCustomer);
+    res.status(200).json(updatedCustomer);
   } else {
     res.status(400);
 

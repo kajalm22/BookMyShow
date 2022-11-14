@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/bookmyshow", require("./routes/custRoutes"));
 app.use("/movies", require("./routes/movieRoutes"));
-app.use("/bookmyshow", require("./routes/theatreRoutes"));
+app.use("/theatres", require("./routes/theatreRoutes"));
 
 app.use(errorHandler);
 

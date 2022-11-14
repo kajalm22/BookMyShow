@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const movieSchema = mongoose.Schema({
   Theatre: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    //required: true,
     ref: "Theatre",
   },
 
@@ -26,7 +26,7 @@ const movieSchema = mongoose.Schema({
   },
   //genre: genreSchema,
 
-  genre: ["action", "drama", "thriller", "horror"],
+  genre: ["action", "drama", "thriller", "horror", "suspense"],
 
   amount: {
     type: Number,
