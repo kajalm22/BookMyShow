@@ -42,6 +42,7 @@ const addTheatre = asyncHandler(async (req, res) => {
   const valid = validate(schema);
 
   if (!valid) console.log("schema validated");
+  res.status(validate.errors);
   console.log(validate.errors);
 });
 //AJV
