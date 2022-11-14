@@ -4,7 +4,8 @@ const {
   getCustomers,
   updateCustomer,
   deleteCustomer,
-  loginUser,
+
+  getOneCustomer,
 } = require("../controller/custController");
 
 const router = express.Router();
@@ -17,6 +18,6 @@ router.route("/customer/update/:id").put(updateCustomer);
 
 router.route("/customer/delete/:id").delete(deleteCustomer);
 
-router.route("/find").get(loginUser);
+router.route("/find").get(getOneCustomer);
 
 module.exports = router;

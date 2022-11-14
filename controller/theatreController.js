@@ -3,6 +3,9 @@ const Theatre = require("../model/theatreModel");
 
 const Ajv = require("ajv");
 const ajv = new Ajv({ allErrors: true });
+const ajvErrors = require("ajv-errors");
+const express = require("express");
+ajvErrors(ajv);
 
 const addTheatre = asyncHandler(async (req, res) => {
   const { theatreName, address } = req.body;
@@ -23,21 +26,53 @@ const addTheatre = asyncHandler(async (req, res) => {
 
     throw new Error("Something went wrong while adding theatre details");
   }
+
+  const schema = {
+    type: "object",
+    properties: {
+      theatreName: { type: "string" },
+      address: { type: "string" },
+    },
+    required: ["theatreName "],
+    additionalProperties: true,
+  };
+
+  const validate = ajv.compile(schema);
+
+  const valid = validate(schema);
+
+  if (!valid) console.log("schema validated");
+  res.status(validate.errors);
+  console.log(validate.errors);
 });
-
 //AJV
-// const schema = {
+// const validate = ajv.compile({
 //   type: "object",
-//   properties: {
-//     theatreName: { type: "string" },
-//     address: { type: "string" },
-//   },
-//   required: ["theatreName", "address"],
+//   required: ["theatreName"],
 //   additionalProperties: false,
-// };
+//   properties: {
+//     type: { type: "string" },
+//     theatreName: {
+//       type: "string",
+//       errorMessage: "CUSTOM ERROR: theatre name must be a string",
+//     },
+//     theatreName: { type: "string" },
 
-// const data = { theatreName: "abc", address: "abc" };
-// const valid = ajv.validate(schema, data);
+//     errorMessage: {
+//       type: "CUSTOM ERROR: not a string",
+//       required: "CUSTOM ERROR: missing required property theatre name",
+//       additionalProperties: "CUSTOM ERROR: cannot have other properties",
+//     },
+//   },
+// });
+
+// validate("theatreName");
+// validate.errors;
+
+// required: ["theatreName", "address"],
+// additionalProperties: false,
+
+// const valid = ajv.validate(schema);
 // if (!valid) console.log(ajv.errors);
 
 const getOneTheatre = asyncHandler(async (req, res) => {
