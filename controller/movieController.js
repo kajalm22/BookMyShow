@@ -2,10 +2,14 @@ const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
 const theatreModel = require("../model/theatreModel");
 const Theatre = require("../model/theatreModel");
+const Ajv = require("ajv");
+const ajv = new Ajv({ allErrors: true });
+const ajvErrors = require("ajv-errors");
+const express = require("express");
+ajvErrors(ajv);
 
 const addMovie = asyncHandler(async (req, res) => {
-  const { title, description, releaseDate, duration, genre, amount, Theatre } =
-    req.body;
+  const { title, description, releaseDate, duration, genre, amount } = req.body;
   // if (!req.body.text) {
   //   res.status(400);
 
@@ -31,13 +35,42 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
-      Theatre,
+      //Theatre,
     });
   } else {
     res.status(400);
     throw new Error("Something went wrong");
   }
   //res.status(200).json(newMovie);
+
+  const schema = {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      releaseDate: { type: "date-time" },
+      duration: { type: "number" },
+      genre: { type: "string" },
+      amount: { type: "number" },
+      //theatre: { type: " string" },
+    },
+    required: [
+      "titlle ",
+      "description",
+      "releaseDate",
+      " duration",
+      "amount",
+      //"theatre",
+    ],
+    additionalProperties: false,
+  };
+
+  const validate = ajv.compile(schema);
+
+  const valid = validate(schema);
+
+  if (!valid) console.log("schema validated");
+  console.log(validate.errors);
 });
 
 const getOneMovie = asyncHandler(async (req, res) => {
