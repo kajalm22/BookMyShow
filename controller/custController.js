@@ -2,6 +2,11 @@ const asyncHandler = require("express-async-handler");
 const Customers = require("../model/custModel");
 const bcrypt = require("bcryptjs");
 
+const Ajv = require("ajv");
+const { db } = require("../model/custModel");
+//const { connect } = require("mongoose");
+const ajv = new Ajv({ allErrors: true });
+
 const registerCustomer = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, gender, age, password, contact } =
     req.body;
@@ -53,11 +58,41 @@ const registerCustomer = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Something went wrong");
   }
+  //AJV
+  //   const schema = {
+  //     type: "object",
+  //     properties: {
+  //       firstName: { type: "string" },
+  //       lastName: { type: "string" },
+  //       email: { type: "string" },
+  //       password: { type: "string" },
+  //       contact: { type: "number" },
+  //       age: { type: "number" },
+  //       gender: { type: "string" },
+  //     },
+  //     required: ["fistName", "lastName", "email", "password", "contact", "age"],
+  //     additionalProperties: false,
+  //   };
+
+  //   const validate = ajv.compile(schema);
+
+  //   const valid = validate(schema);
+
+  //   if (!valid)
+  //     // console.log("schema validated");
+  //     console.log(validate.errors);
 });
 
 const getCustomers = asyncHandler(async (req, res) => {
   const customers = await Customers.find();
   res.status(200).json(customers);
+});
+
+const loginUser = asyncHandler(async (req, res) => {
+  const { firstName } = req.body;
+
+  const customer = await Customers.findOne({ firstName });
+  res.status(200).json(customer);
 });
 
 const updateCustomer = asyncHandler(async (req, res) => {
@@ -102,4 +137,5 @@ module.exports = {
   getCustomers,
   updateCustomer,
   deleteCustomer,
+  loginUser,
 };

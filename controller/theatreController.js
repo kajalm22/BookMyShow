@@ -1,6 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const Theatre = require("../model/theatreModel");
 
+const Ajv = require("ajv");
+const ajv = new Ajv({ allErrors: true });
+
 const addTheatre = asyncHandler(async (req, res) => {
   const { theatreName, address } = req.body;
 
@@ -20,6 +23,28 @@ const addTheatre = asyncHandler(async (req, res) => {
 
     throw new Error("Something went wrong while adding theatre details");
   }
+});
+
+//AJV
+// const schema = {
+//   type: "object",
+//   properties: {
+//     theatreName: { type: "string" },
+//     address: { type: "string" },
+//   },
+//   required: ["theatreName", "address"],
+//   additionalProperties: false,
+// };
+
+// const data = { theatreName: "abc", address: "abc" };
+// const valid = ajv.validate(schema, data);
+// if (!valid) console.log(ajv.errors);
+
+const getOneTheatre = asyncHandler(async (req, res) => {
+  const { address } = req.body;
+
+  const theatre = await Theatre.findOne({ address });
+  res.status(200).json(theatre);
 });
 
 const getTheatre = asyncHandler(async (req, res) => {
@@ -63,4 +88,10 @@ const deleteTheatre = asyncHandler(async (req, res) => {
   res.status(200).json(deletedTheatre);
 });
 
-module.exports = { addTheatre, getTheatre, updateTheatre, deleteTheatre };
+module.exports = {
+  addTheatre,
+  getTheatre,
+  updateTheatre,
+  deleteTheatre,
+  getOneTheatre,
+};

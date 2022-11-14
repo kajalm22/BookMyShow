@@ -40,6 +40,13 @@ const addMovie = asyncHandler(async (req, res) => {
   //res.status(200).json(newMovie);
 });
 
+const getOneMovie = asyncHandler(async (req, res) => {
+  const { title } = req.body;
+
+  const movie = await Movies.findOne({ title });
+  res.status(200).json(movie);
+});
+
 const getMovies = asyncHandler(async (req, res) => {
   const movies = await Movies.find();
   res.status(200).json(movies);
@@ -79,4 +86,10 @@ const deleteMovies = asyncHandler(async (req, res) => {
   const deletedMovie = await Movies.deleteOne();
   res.status(200).json({ message: "Movie details have been now deleted!" });
 });
-module.exports = { addMovie, getMovies, updateMovies, deleteMovies };
+module.exports = {
+  addMovie,
+  getMovies,
+  updateMovies,
+  deleteMovies,
+  getOneMovie,
+};
