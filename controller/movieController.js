@@ -14,6 +14,7 @@ const addMovie = asyncHandler(async (req, res) => {
       duration: { type: "number" },
       genre: { type: "array" },
       amount: { type: "number" },
+      theatreName: { type: "string" },
     },
     required: [
       "title ",
@@ -22,6 +23,7 @@ const addMovie = asyncHandler(async (req, res) => {
       " duration",
       "genre",
       "amount",
+      "theatreName",
     ],
     //additionalProperties: false,
   };
@@ -36,7 +38,15 @@ const addMovie = asyncHandler(async (req, res) => {
   }
   //to validate schema using ajv , send data in raw json , not body urlencoded
 
-  const { title, description, releaseDate, duration, genre, amount } = req.body;
+  const {
+    title,
+    description,
+    releaseDate,
+    duration,
+    genre,
+    amount,
+    theatreName,
+  } = req.body;
 
   const newMovie = await Movies.create({
     title,
@@ -45,6 +55,7 @@ const addMovie = asyncHandler(async (req, res) => {
     genre,
     duration,
     amount,
+    theatreName,
   });
 
   if (newMovie) {
@@ -56,6 +67,7 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
+      theatreName,
     });
   } else {
     res.status(400);
@@ -65,9 +77,15 @@ const addMovie = asyncHandler(async (req, res) => {
 });
 
 const getOneMovie = asyncHandler(async (req, res) => {
-  const { title } = req.body;
+  //const { title } = req.body;
 
-  const movie = await Movies.findOne({ title });
+  const movie = await Movies.findOne({ _id: Movies.id }) //title: "future"
+    .populate({
+      path: "Theatre",
+      select: "title description genre amount releaseDate",
+      //strictPopulate: false,
+    })
+    .exec();
   res.status(200).json(movie);
 });
 
