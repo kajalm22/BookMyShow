@@ -26,7 +26,7 @@ const addTheatre = asyncHandler(async (req, res) => {
 
   if (!valid) {
     console.log(validate.errors);
-    res.status(400).json({ err: validate.errors });
+    //res.status(400).json({ err: validate.errors });
   }
 
   const { theatreName, address } = req.body;
