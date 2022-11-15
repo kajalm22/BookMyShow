@@ -24,10 +24,10 @@ const movieSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
-  //genre: genreSchema,
 
-  genre: ["action", "drama", "thriller", "horror", "suspense"],
-
+  genre: {
+    type: [Array("action", "drama", "thriller", "horror", "suspense")],
+  },
   amount: {
     type: Number,
     required: true,

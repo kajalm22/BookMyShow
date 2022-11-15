@@ -3,13 +3,39 @@ const Customers = require("../model/custModel");
 const bcrypt = require("bcryptjs");
 
 const Ajv = require("ajv");
-const ajv = new Ajv({ allErrors: true });
-const ajvErrors = require("ajv-errors");
+const ajv = new Ajv();
+
 const express = require("express");
-ajvErrors(ajv);
 
 const registerCustomer = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, gender, age, password, contact } =
+  // AJV
+  const schema = {
+    type: "object",
+    properties: {
+      firstName: { type: "string" },
+      lastName: { type: "string" },
+      email: { type: "string" },
+      password: { type: "string" },
+      contact: { type: "number" },
+      age: { type: "number" },
+      gender: { type: "string" },
+    },
+    required: ["firstName", "lastName", "email", "password", "contact", "age"],
+    //additionalProperties: true,
+  };
+
+  const validate = ajv.compile(schema);
+
+  const valid = validate(req.body);
+
+  if (!valid) {
+    console.log(validate.errors);
+    res.status(400).json({ err: validate.errors });
+  } else {
+    res.status(500).json({ message: "Schema validated. No errors found" });
+  }
+
+  const { firstName, lastName, email, password, contact, age, gender } =
     req.body;
 
   if (
@@ -59,28 +85,6 @@ const registerCustomer = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Something went wrong");
   }
-  //AJV
-  const schema = {
-    type: "object",
-    properties: {
-      firstName: { type: "string" },
-      lastName: { type: "string" },
-      email: { type: "string" },
-      password: { type: "string" },
-      contact: { type: "number" },
-      age: { type: "number" },
-      gender: { type: "string" },
-    },
-    required: ["firstName", "lastName", "email", "password", "contact", "age"],
-    additionalProperties: false,
-  };
-
-  const validate = ajv.compile(schema);
-
-  const valid = validate(schema);
-
-  if (!valid) console.log("schema validated");
-  console.log(validate.errors);
 });
 
 const getCustomers = asyncHandler(async (req, res) => {
