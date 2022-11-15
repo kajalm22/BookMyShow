@@ -2,18 +2,41 @@ const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
 const Theatre = require("../model/theatreModel");
 const Ajv = require("ajv");
-const ajv = new Ajv({ allErrors: true });
-const ajvErrors = require("ajv-errors");
-
-ajvErrors(ajv);
+const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
-  const { title, description, releaseDate, duration, genre, amount } = req.body;
-  // if (!req.body.text) {
-  //   res.status(400);
+  const schema = {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      releaseDate: { type: "date" },
+      duration: { type: "number" },
+      genre: { type: "array" },
+      amount: { type: "number" },
+    },
+    required: [
+      "title ",
+      "description",
+      "releaseDate",
+      " duration",
+      "genre",
+      "amount",
+    ],
+    //additionalProperties: false,
+  };
 
-  //   throw new Error("please add a movie name");
-  // }
+  const validate = ajv.compile(schema);
+
+  const valid = validate(req.body);
+
+  if (!valid) {
+    console.log(validate.errors);
+    res.status(400).json({ err: validate.errors });
+  }
+  //to validate schema using ajv , send data in raw json , not body urlencoded
+
+  const { title, description, releaseDate, duration, genre, amount } = req.body;
 
   const newMovie = await Movies.create({
     title,
@@ -22,7 +45,6 @@ const addMovie = asyncHandler(async (req, res) => {
     genre,
     duration,
     amount,
-    //Theatre,
   });
 
   if (newMovie) {
@@ -34,42 +56,12 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
-      //Theatre,
     });
   } else {
     res.status(400);
     throw new Error("Something went wrong");
   }
   //res.status(200).json(newMovie);
-
-  const schema = {
-    type: "object",
-    properties: {
-      title: { type: "string" },
-      description: { type: "string" },
-      releaseDate: { type: "number" },
-      duration: { type: "number" },
-      genre: { type: "string" },
-      amount: { type: "number" },
-      //theatre: { type: " string" },
-    },
-    required: [
-      "title ",
-      "description",
-      "releaseDate",
-      " duration",
-      "amount",
-      //"theatre",
-    ],
-    additionalProperties: false,
-  };
-
-  const validate = ajv.compile(schema);
-
-  const valid = validate(schema);
-
-  if (!valid) console.log("schema validated");
-  console.log(validate.errors);
 });
 
 const getOneMovie = asyncHandler(async (req, res) => {
