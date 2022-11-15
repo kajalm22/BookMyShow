@@ -1,11 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
-const theatreModel = require("../model/theatreModel");
 const Theatre = require("../model/theatreModel");
 const Ajv = require("ajv");
 const ajv = new Ajv({ allErrors: true });
 const ajvErrors = require("ajv-errors");
-const express = require("express");
+
 ajvErrors(ajv);
 
 const addMovie = asyncHandler(async (req, res) => {
@@ -48,14 +47,14 @@ const addMovie = asyncHandler(async (req, res) => {
     properties: {
       title: { type: "string" },
       description: { type: "string" },
-      releaseDate: { type: "date-time" },
+      releaseDate: { type: "number" },
       duration: { type: "number" },
       genre: { type: "string" },
       amount: { type: "number" },
       //theatre: { type: " string" },
     },
     required: [
-      "titlle ",
+      "title ",
       "description",
       "releaseDate",
       " duration",

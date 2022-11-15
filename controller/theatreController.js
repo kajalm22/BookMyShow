@@ -2,12 +2,33 @@ const asyncHandler = require("express-async-handler");
 const Theatre = require("../model/theatreModel");
 
 const Ajv = require("ajv");
-const ajv = new Ajv({ allErrors: true });
-const ajvErrors = require("ajv-errors");
+const ajv = new Ajv();
 const express = require("express");
-ajvErrors(ajv);
 
 const addTheatre = asyncHandler(async (req, res) => {
+  // AJV
+  const schema = {
+    type: "object",
+    properties: {
+      theatreName: {
+        type: "string",
+      },
+      address: {
+        type: "string",
+      },
+    },
+    required: ["theatreName", "address"],
+  };
+
+  const validate = ajv.compile(schema);
+
+  const valid = validate(req.body);
+
+  if (!valid) {
+    console.log(validate.errors);
+    res.status(400).json({ err: validate.errors });
+  }
+
   const { theatreName, address } = req.body;
 
   const newTheatre = await Theatre.create({
@@ -26,54 +47,7 @@ const addTheatre = asyncHandler(async (req, res) => {
 
     throw new Error("Something went wrong while adding theatre details");
   }
-
-  const schema = {
-    type: "object",
-    properties: {
-      theatreName: { type: "string" },
-      address: { type: "string" },
-    },
-    required: ["theatreName "],
-    additionalProperties: true,
-  };
-
-  const validate = ajv.compile(schema);
-
-  const valid = validate(schema);
-
-  if (!valid) console.log("schema validated");
-  res.status(validate.errors);
-  console.log(validate.errors);
 });
-//AJV
-// const validate = ajv.compile({
-//   type: "object",
-//   required: ["theatreName"],
-//   additionalProperties: false,
-//   properties: {
-//     type: { type: "string" },
-//     theatreName: {
-//       type: "string",
-//       errorMessage: "CUSTOM ERROR: theatre name must be a string",
-//     },
-//     theatreName: { type: "string" },
-
-//     errorMessage: {
-//       type: "CUSTOM ERROR: not a string",
-//       required: "CUSTOM ERROR: missing required property theatre name",
-//       additionalProperties: "CUSTOM ERROR: cannot have other properties",
-//     },
-//   },
-// });
-
-// validate("theatreName");
-// validate.errors;
-
-// required: ["theatreName", "address"],
-// additionalProperties: false,
-
-// const valid = ajv.validate(schema);
-// if (!valid) console.log(ajv.errors);
 
 const getOneTheatre = asyncHandler(async (req, res) => {
   const { address } = req.body;
