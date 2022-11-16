@@ -1,10 +1,16 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
 const Theatre = require("../model/theatreModel");
+const mongoose = require("mongoose");
 const Ajv = require("ajv");
+const { ObjectID } = require("bson");
+const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
+  // const movies = await Movies.find().populate("Theatre");
+  // console.log(movies);
+
   const schema = {
     type: "object",
     properties: {
@@ -14,6 +20,7 @@ const addMovie = asyncHandler(async (req, res) => {
       duration: { type: "number" },
       genre: { type: "array" },
       amount: { type: "number" },
+      theatreName: { type: "string" },
     },
     required: [
       "title ",
@@ -22,7 +29,9 @@ const addMovie = asyncHandler(async (req, res) => {
       " duration",
       "genre",
       "amount",
+      "theatreName",
     ],
+
     //additionalProperties: false,
   };
 
@@ -36,7 +45,15 @@ const addMovie = asyncHandler(async (req, res) => {
   }
   //to validate schema using ajv , send data in raw json , not body urlencoded
 
-  const { title, description, releaseDate, duration, genre, amount } = req.body;
+  const {
+    title,
+    description,
+    releaseDate,
+    duration,
+    genre,
+    amount,
+    theatreName,
+  } = req.body;
 
   const newMovie = await Movies.create({
     title,
@@ -45,6 +62,7 @@ const addMovie = asyncHandler(async (req, res) => {
     genre,
     duration,
     amount,
+    theatreName,
   });
 
   if (newMovie) {
@@ -56,6 +74,7 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
+      theatreName,
     });
   } else {
     res.status(400);
@@ -65,10 +84,23 @@ const addMovie = asyncHandler(async (req, res) => {
 });
 
 const getOneMovie = asyncHandler(async (req, res) => {
-  const { title } = req.body;
-
-  const movie = await Movies.findOne({ title });
-  res.status(200).json(movie);
+  //const { title } = req.body;
+  const movie = await Movies.findOne(
+    { title: "mirror" },
+    { title: 1, amount: 1, _id: 0 }
+  ).populate({
+    path: "Theatre",
+    select: "theatreName address",
+  });
+  if (movie) {
+    res.status(200).json(movie);
+  }
+  // if (!populate) {
+  //   console.log("failed to load");
+  // } else {
+  //   res.status(200).json(movie);
+  // }
+  // if (err) res, error.message, "Failed to load";
 });
 
 const getMovies = asyncHandler(async (req, res) => {

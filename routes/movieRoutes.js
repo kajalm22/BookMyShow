@@ -5,6 +5,7 @@ const {
   updateMovies,
   deleteMovies,
   getOneMovie,
+  //getMovieData,
 } = require("../controller/movieController");
 const { getTheatre } = require("../controller/theatreController");
 const router = express.Router();
@@ -18,5 +19,7 @@ router.route("/update/:id").put(updateMovies);
 router.route("/delete/:id").delete(deleteMovies);
 
 router.route("/find").get(getOneMovie);
+
+//router.route("/getMovieData").get(getMoviesWithTheaters);
 
 module.exports = router;
