@@ -83,18 +83,17 @@ const addMovie = asyncHandler(async (req, res) => {
 // findOne by  title , use projection and populate
 
 const populateMovies = async (req, res) => {
-  const movie = await Movies.findOne(
-    { title: "the future" }
+  const movie = await Movies.findOne({ title: req.body })
+    // { title: "the future" }
     // { title: 1 }
-  ).populate("theatreName");
+    .populate("theatreName");
   console.log("populated data");
 
   if (movie) {
     res.status(200).json(movie);
+  } else {
+    res.status(400).json({ message: "Could not load" });
   }
-  // } else {
-  //   res.status(400).json({ message: "Could not load" });
-  // }
 };
 
 const getOneMovie = asyncHandler(async (req, res) => {
@@ -110,6 +109,16 @@ const getMovies = asyncHandler(async (req, res) => {
   const movies = await Movies.find()
     .skip((page - 1) * perPage)
     .limit(perPage);
+  res.status(200).json(movies);
+});
+
+//find using projection and populate
+const getMoviesByProjection = asyncHandler(async (req, res) => {
+  const movies = await Movies.findById(req.params.id, {
+    title: 1,
+    _id: 0,
+    theatreName: 1,
+  }).populate("theatreName");
   res.status(200).json(movies);
 });
 
@@ -154,4 +163,5 @@ module.exports = {
   deleteMovies,
   getOneMovie,
   populateMovies,
+  getMoviesByProjection,
 };
