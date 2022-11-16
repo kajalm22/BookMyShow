@@ -5,7 +5,7 @@ const movieSchema = mongoose.Schema(
     theatreName: {
       type: String,
       required: true,
-      theatreName: [{ type: mongoose.Schema.Types.ObjectId, ref: "Theatre" }],
+      theatre: [{ type: mongoose.Schema.Types.ObjectId, ref: "Theatre" }],
     },
 
     title: {
@@ -34,6 +34,7 @@ const movieSchema = mongoose.Schema(
       required: true,
     },
   },
+  { strict: false },
   {
     timestamps: true,
   }
