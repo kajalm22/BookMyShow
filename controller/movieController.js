@@ -3,8 +3,8 @@ const Movies = require("../model/movieModel");
 const Theatre = require("../model/theatreModel");
 const mongoose = require("mongoose");
 const Ajv = require("ajv");
-const { ObjectID } = require("bson");
-const { populate } = require("../model/theatreModel");
+//const { ObjectID } = require("bson");
+//const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
@@ -13,23 +13,23 @@ const addMovie = asyncHandler(async (req, res) => {
     properties: {
       title: { type: "string" },
       description: { type: "string" },
-      releaseDate: { type: "date" },
+      releaseDate: { type: "string" },
       duration: { type: "number" },
       genre: { type: "array" },
       amount: { type: "number" },
       theatreName: { type: "string" },
     },
     required: [
-      "title ",
+      "title",
       "description",
       "releaseDate",
-      " duration",
       "genre",
+      "duration",
       "amount",
       "theatreName",
     ],
 
-    //additionalProperties: false,
+    //additionalProperties: true,
   };
 
   const validate = ajv.compile(schema);
@@ -46,8 +46,8 @@ const addMovie = asyncHandler(async (req, res) => {
     title,
     description,
     releaseDate,
-    duration,
     genre,
+    duration,
     amount,
     theatreName,
   } = req.body;
@@ -80,16 +80,23 @@ const addMovie = asyncHandler(async (req, res) => {
   //res.status(200).json(newMovie);
 });
 
+// findOne by  title , use projection and populate
+
 const populateMovies = async (req, res) => {
   const movie = await Movies.findOne(
-    { title: 1, _id: 0 },
-    { title: "mirror" }
-  ).populate("Theatre");
+    { title: "the future" }
+    // { title: 1 }
+  ).populate("theatreName");
+  console.log("populated data");
 
   if (movie) {
     res.status(200).json(movie);
   }
+  // } else {
+  //   res.status(400).json({ message: "Could not load" });
+  // }
 };
+
 const getOneMovie = asyncHandler(async (req, res) => {
   const { title } = req.body;
   const movie = await Movies.findOne({ title });
@@ -97,7 +104,12 @@ const getOneMovie = asyncHandler(async (req, res) => {
 });
 
 const getMovies = asyncHandler(async (req, res) => {
-  const movies = await Movies.find();
+  //pagination
+  const page = req.query.p || 1;
+  const perPage = 5;
+  const movies = await Movies.find()
+    .skip((page - 1) * perPage)
+    .limit(perPage);
   res.status(200).json(movies);
 });
 
@@ -107,7 +119,7 @@ const updateMovies = asyncHandler(async (req, res) => {
   if (!movies) {
     res.status(400);
 
-    throw new Error("Movie not found. Please the given Movie ID ");
+    throw new Error("Movie not found. Please check the given Movie ID ");
   }
 
   const updatedMovie = await Movies.findByIdAndUpdate(req.params.id, req.body, {
