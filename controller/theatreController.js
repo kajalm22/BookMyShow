@@ -16,6 +16,9 @@ const addTheatre = asyncHandler(async (req, res) => {
       address: {
         type: "string",
       },
+      // theatreId: {
+      //   type: "number",
+      // },
     },
     required: ["theatreName", "address"],
   };
