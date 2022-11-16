@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const movieSchema = mongoose.Schema(
   {
     Theatre: {
+      //theatreName : String,
       type: mongoose.Schema.Types.ObjectId,
-      //required: true,
+      required: true,
+      strict: false,
       ref: "Theatre",
     },
 
@@ -33,6 +35,7 @@ const movieSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    strict: false,
   },
   {
     timestamps: true,

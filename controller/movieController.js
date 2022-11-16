@@ -1,10 +1,16 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
 const Theatre = require("../model/theatreModel");
+const mongoose = require("mongoose");
 const Ajv = require("ajv");
+const { ObjectID } = require("bson");
+const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
+  // const movies = await Movies.find().populate("Theatre");
+  // console.log(movies);
+
   const schema = {
     type: "object",
     properties: {
@@ -25,6 +31,7 @@ const addMovie = asyncHandler(async (req, res) => {
       "amount",
       "theatreName",
     ],
+
     //additionalProperties: false,
   };
 
@@ -78,15 +85,22 @@ const addMovie = asyncHandler(async (req, res) => {
 
 const getOneMovie = asyncHandler(async (req, res) => {
   //const { title } = req.body;
-
-  const movie = await Movies.findOne({ _id: Movies.id }) //title: "future"
-    .populate({
-      path: "Theatre",
-      select: "title description genre amount releaseDate",
-      //strictPopulate: false,
-    })
-    .exec();
-  res.status(200).json(movie);
+  const movie = await Movies.findOne(
+    { title: "mirror" },
+    { title: 1, amount: 1, _id: 0 }
+  ).populate({
+    path: "Theatre",
+    select: "theatreName address",
+  });
+  if (movie) {
+    res.status(200).json(movie);
+  }
+  // if (!populate) {
+  //   console.log("failed to load");
+  // } else {
+  //   res.status(200).json(movie);
+  // }
+  // if (err) res, error.message, "Failed to load";
 });
 
 const getMovies = asyncHandler(async (req, res) => {
