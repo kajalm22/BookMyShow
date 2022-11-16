@@ -9,10 +9,6 @@ const theatreSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  // theatreId: {
-  //   type: Number,
-  //   required: true,
-  // },
 });
 
 module.exports = mongoose.model("Theatre", theatreSchema);
