@@ -16,11 +16,9 @@ const addTheatre = asyncHandler(async (req, res) => {
       address: {
         type: "string",
       },
-      // theatreId: {
-      //   type: "number",
-      // },
     },
     required: ["theatreName", "address"],
+    additionalProperties: true,
   };
 
   const validate = ajv.compile(schema);
