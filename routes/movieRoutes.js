@@ -7,6 +7,8 @@ const {
   getOneMovie,
   populateMovies,
   getMoviesByProjection,
+  aggregatePagination,
+  addMultiple,
 } = require("../controller/movieController");
 const { getTheatre } = require("../controller/theatreController");
 const router = express.Router();
@@ -24,5 +26,9 @@ router.route("/find").get(getOneMovie);
 router.route("/getPopulatedMovie").get(populateMovies);
 
 router.route("/getMoviesByProjection/:id").get(getMoviesByProjection);
+
+router.route("/aggregatePagination").get(aggregatePagination);
+
+router.route("/addMultiple").post(addMultiple);
 
 module.exports = router;
