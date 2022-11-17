@@ -91,10 +91,9 @@ const populateMovies = async (req, res) => {
 
   if (movie) {
     res.status(200).json(movie);
+  } else {
+    res.status(400).json({ message: "Could not load" });
   }
-  // } else {
-  //   res.status(400).json({ message: "Could not load" });
-  // }
 };
 
 const getOneMovie = asyncHandler(async (req, res) => {
