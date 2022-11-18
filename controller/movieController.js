@@ -174,15 +174,7 @@ const addMultiple = asyncHandler(async (req, res) => {
   // console.log(req.body)
 
   const newMovies = await Movies.insertMany(req.body)
-  //   {
-  //   title,
-  //   description,
-  //   releaseDate,
-  //   duration,
-  //   genre,
-  //   amount,
-   
-  // }
+  
   
   
 
