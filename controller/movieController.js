@@ -18,7 +18,7 @@ const addMovie = asyncHandler(async (req, res) => {
       duration: { type: "number" },
       genre: { type: "array" },
       amount: { type: "number" },
-      theatreName: { type: "string" },
+      // theatreName: { type: "string" },
     },
     required: [
       "title",
@@ -27,7 +27,7 @@ const addMovie = asyncHandler(async (req, res) => {
       "genre",
       "duration",
       "amount",
-      "theatreName",
+      // "theatreName",
     ],
 
     //additionalProperties: true,
@@ -41,7 +41,7 @@ const addMovie = asyncHandler(async (req, res) => {
     console.log(validate.errors);
     res.status(400).json({ err: validate.errors });
   }
-  //to validate schema using ajv , send data in raw json , not body urlencoded
+  //to validate schema using ajv , send data in raw json
 
   const {
     title,
@@ -50,7 +50,7 @@ const addMovie = asyncHandler(async (req, res) => {
     genre,
     duration,
     amount,
-    theatreName,
+    // theatreName,
   } = req.body;
 
   const newMovie = await Movies.create({
@@ -60,7 +60,7 @@ const addMovie = asyncHandler(async (req, res) => {
     genre,
     duration,
     amount,
-    theatreName,
+    // theatreName,
   });
 
   if (newMovie) {
@@ -72,7 +72,7 @@ const addMovie = asyncHandler(async (req, res) => {
       genre,
       duration,
       amount,
-      theatreName,
+      // theatreName,
     });
   } else {
     res.status(400);
