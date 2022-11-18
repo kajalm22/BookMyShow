@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const Ajv = require("ajv");
 const { all } = require("../routes/movieRoutes");
 const res = require("express/lib/response");
+const { json } = require("express/lib/response");
 //const { ObjectID } = require("bson");
 //const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
@@ -81,6 +82,21 @@ const addMovie = asyncHandler(async (req, res) => {
   }
   //res.status(200).json(newMovie);
 });
+
+
+//find all matching with keywords
+const findWithKeyword = asyncHandler ( async ( req , res) => {
+  let data = await Movies.find( 
+    {
+      "$or": [
+        {title :{$regex:req.params.key} }
+      ]
+    } 
+  )
+  //console.log(req.params.key)
+    res.status(200).json(data)
+})
+
 
 // findOne by  title , use projection and populate
 const populateMovies = async (req, res) => {
@@ -207,7 +223,6 @@ const updateMovies = asyncHandler(async (req, res) => {
   const updatedMovie = await Movies.findByIdAndUpdate(
     req.params.id,
     req.body
-    // {new: true}
   );
 
   if (updatedMovie) {
@@ -240,4 +255,5 @@ module.exports = {
   getMoviesByProjection,
   aggregatePagination,
   addMultiple,
+  findWithKeyword
 };
