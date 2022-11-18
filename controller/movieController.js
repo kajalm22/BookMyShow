@@ -4,6 +4,7 @@ const Theatre = require("../model/theatreModel");
 const mongoose = require("mongoose");
 const Ajv = require("ajv");
 const { all } = require("../routes/movieRoutes");
+const res = require("express/lib/response");
 //const { ObjectID } = require("bson");
 //const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
@@ -176,7 +177,6 @@ const addMultiple = asyncHandler(async (req, res) => {
   const newMovies = await Movies.insertMany(req.body)
   
   
-  
 
   if (newMovies) {
     res.status(201).json({
@@ -219,23 +219,22 @@ const updateMovies = asyncHandler(async (req, res) => {
   }
 });
 
-const deleteMovies = asyncHandler(async (req, res) => {
-  const movies = await Movies.findById(req.params.id);
+const deletedMovies = asyncHandler(async (req, res) => {
+  const movies = await Movies.deleteOne({ _id: req.params.id} );
 
   if (!movies) {
     res.status(400);
 
     throw new Error("Movie not found. Please check the Movie Id given");
+  }else{
+    res.status(200).json(movies)
   }
-
-  const deletedMovie = await Movies.deleteOne();
-  res.status(200).json({ message: "Movie details have been now deleted!" });
 });
 module.exports = {
   addMovie,
   getMovies,
   updateMovies,
-  deleteMovies,
+  deletedMovies,
   getOneMovie,
   populateMovies,
   getMoviesByProjection,
