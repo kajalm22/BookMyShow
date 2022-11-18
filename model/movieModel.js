@@ -4,7 +4,7 @@ const movieSchema = mongoose.Schema(
   {
     theatreName: {
       type: String,
-      required: true,
+      //required: true,
       theatre: [{ type: mongoose.Schema.Types.ObjectId, ref: "Theatre" }],
     },
 
