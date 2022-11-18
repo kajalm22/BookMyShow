@@ -134,6 +134,7 @@ const aggregatePagination = asyncHandler(async (req, res) => {
   }
 });
 
+
 const getOneMovie = asyncHandler(async (req, res) => {
   const { title } = req.body;
   const movie = await Movies.findOne({ title });
@@ -156,7 +157,7 @@ const getMoviesByProjection = asyncHandler(async (req, res) => {
     title: 1,
     // _id: 0,
     theatreName: 1,
-  }).populate("theatreName");
+  }).populate("theatre");
   res.status(200).json(movies);
 });
 
@@ -168,18 +169,22 @@ const addMultiple = asyncHandler(async (req, res) => {
     duration,
     genre,
     amount,
-    theatreName,
+    
   } = req.body;
+  // console.log(req.body)
 
-  const newMovies = await Movies.insertMany({
-    title,
-    description,
-    releaseDate,
-    duration,
-    genre,
-    amount,
-    theatreName,
-  });
+  const newMovies = await Movies.insertMany(req.body)
+  //   {
+  //   title,
+  //   description,
+  //   releaseDate,
+  //   duration,
+  //   genre,
+  //   amount,
+   
+  // }
+  
+  
 
   if (newMovies) {
     res.status(201).json({
@@ -191,7 +196,7 @@ const addMultiple = asyncHandler(async (req, res) => {
       duration,
       genre,
       amount,
-      theatreName,
+      
     });
   } else {
     res.status(400).json({ message: "Something went wrong!" });
