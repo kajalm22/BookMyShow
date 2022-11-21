@@ -1,19 +1,19 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
-const Theatre = require("../model/theatreModel");
-const mongoose = require("mongoose");
+//  const Theatre = require("../model/theatreModel");
+// const mongoose = require("mongoose");
 const Ajv = require("ajv");
-const { all } = require("../routes/movieRoutes");
-const res = require("express/lib/response");
-const { json } = require("express/lib/response");
-//const { ObjectID } = require("bson");
-//const { populate } = require("../model/theatreModel");
+// const res = require("express/lib/response");
+// const { json } = require("express/lib/response");
+// const { ObjectID } = require("bson");
+// const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
   const schema = {
     type: "object",
     properties: {
+      theatre_id: {type: "number"},
       title: { type: "string" },
       description: { type: "string" },
       releaseDate: { type: "string" },
@@ -23,6 +23,7 @@ const addMovie = asyncHandler(async (req, res) => {
       // theatreName: { type: "string" },
     },
     required: [
+      "theatre_id",
       "title",
       "description",
       "releaseDate",
@@ -46,6 +47,7 @@ const addMovie = asyncHandler(async (req, res) => {
   //to validate schema using ajv , send data in raw json
 
   const {
+    theatre_id,
     title,
     description,
     releaseDate,
@@ -56,6 +58,8 @@ const addMovie = asyncHandler(async (req, res) => {
   } = req.body;
 
   const newMovie = await Movies.create({
+    // _id:mongoose.Types.ObjectId(),
+    theatre_id,
     title,
     description,
     releaseDate,
@@ -68,6 +72,7 @@ const addMovie = asyncHandler(async (req, res) => {
   if (newMovie) {
     res.status(201).json({
       message: "Movie has been added successfully",
+      theatre_id,
       title,
       description,
       releaseDate,
@@ -84,7 +89,7 @@ const addMovie = asyncHandler(async (req, res) => {
 });
 
 
-//find all matching with keywords
+//find all matching keywords in title
 const findWithKeyword = asyncHandler ( async ( req , res) => {
   let data = await Movies.find( 
     {
@@ -98,26 +103,27 @@ const findWithKeyword = asyncHandler ( async ( req , res) => {
 })
 
 
+
 // findOne by  title , use projection and populate
 const populateMovies = async (req, res) => {
-  //const { title } = req.params.title;
-  const movie = await Movies.findOne(
-    { title: req.body.title },
-    { _id: 0, description: 0, genre: 0 }
-  ).populate("theatreName");
-  console.log("populated data");
-
-  if (movie) {
-    res.status(200).json(movie);
-  } else {
-    res.status(400).json({ message: "Could not load" });
+  try {
+    const movie = await Movies.findOne({title: "sacred"})
+    // .select("theatre_id address")
+    .populate('theatre_id');
+    
+  //console.log(movie);
+  res.status(200).json(movie)   
+  } catch (error) {
+    res.status(500).json(error)
   }
 };
 
-//aggregate pagination
+
+
+//aggregate pagination , find using keywords 
 const aggregatePagination = asyncHandler(async (req, res) => {
-  try {
-    let page = parseInt(req.query.p) - 1 || 0;
+  try{
+  let page = parseInt(req.query.p) - 1 || 0;
     let limit = parseInt(req.query.limit) || 4;
     let sort = req.query.sort || "releaseDate";
 
@@ -135,13 +141,14 @@ const aggregatePagination = asyncHandler(async (req, res) => {
       .skip(page * limit)
       .limit(limit);
 
-    const total = await Movies.countDocuments();
+    const total = await Movies.countDocuments(); //gives total no of data in collection
 
     const response = {
       total,
       page: page + 1,
       limit,
-      movie,
+      movie
+      
     };
 
     res.status(200).json(response);
@@ -149,22 +156,52 @@ const aggregatePagination = asyncHandler(async (req, res) => {
     console.log(error);
     res.status(500).json({ message: "Could not load" });
   }
+    
 });
 
+// const paginationMovies= async (req, res) => {
+//   const page = req.query.page;
+//   const limit = parseInt(req.query.limit);
+//   console.log(page);
+//   console.log(limit);
 
+//   try {
+//       const result = await Movies.aggregate([
+//           { $skip: (page - 1) * limit },
+//           { $limit: limit },
+//           { $sort: { title: 1 } }
+//       ])
+//       console.log(result)
+//       res.status(200).json(result)
+//   } catch (err) {
+//       res.status(500).json(err.message)
+//   }
+// }
+
+
+// To get one movie by title
 const getOneMovie = asyncHandler(async (req, res) => {
   const { title } = req.body;
   const movie = await Movies.findOne({ title });
   res.status(200).json(movie);
 });
 
+//get all movies by pagination
 const getMovies = asyncHandler(async (req, res) => {
-  //pagination
+  // let aggregate_options = []
   const page = req.query.p || 1;
   const perPage = 5;
   const movies = await Movies.find()
     .skip((page - 1) * perPage)
-    .limit(perPage);
+    .limit(perPage)
+
+  //   let match = {}
+
+  // if(req.query.q) 
+  // match.title = {$regex : req.query.q , $options: "i"}
+  // aggregate_options.push({$match: match})
+
+
   res.status(200).json(movies);
 });
 
@@ -174,10 +211,27 @@ const getMoviesByProjection = asyncHandler(async (req, res) => {
     title: 1,
     // _id: 0,
     theatreName: 1,
-  }).populate("theatre");
+  }).populate("theatre_id");
   res.status(200).json(movies);
 });
 
+
+
+//get by aggregate projection
+const projectMovies = async (req, res) => {
+  try {
+      const result = await Movies.aggregate([
+          { $project: { _id: 0, title: 1 } }
+      ])
+      // console.log(result)
+      res.status(200).json(result)
+  } catch (err) {
+      res.status(500).json(err.message)
+  }
+}
+
+
+// insert multiple data as objects in postman
 const addMultiple = asyncHandler(async (req, res) => {
   const {
     title,
@@ -192,8 +246,6 @@ const addMultiple = asyncHandler(async (req, res) => {
 
   const newMovies = await Movies.insertMany(req.body)
   
-  
-
   if (newMovies) {
     res.status(201).json({
       message: "Multiple movies added successfully",
@@ -211,20 +263,14 @@ const addMultiple = asyncHandler(async (req, res) => {
   }
 });
 
+
+//update movie details
 const updateMovies = asyncHandler(async (req, res) => {
-  const movies = await Movies.findById(req.params.id);
 
-  if (!movies) {
-    res.status(400);
-
-    throw new Error("Movie not found. Please check the given Movie ID ");
-  }
-
-  const updatedMovie = await Movies.findByIdAndUpdate(
-    req.params.id,
+  const updatedMovie = await Movies.findByIdAndUpdate( 
+   req.params.id,
     req.body
   );
-
   if (updatedMovie) {
     res.status(200).json(updatedMovie);
   } else {
@@ -233,6 +279,7 @@ const updateMovies = asyncHandler(async (req, res) => {
     throw new Error("Movie details could not be updated!");
   }
 });
+
 
 const deletedMovies = asyncHandler(async (req, res) => {
   const movies = await Movies.deleteOne({ _id: req.params.id} );
@@ -245,6 +292,8 @@ const deletedMovies = asyncHandler(async (req, res) => {
     res.status(200).json(movies)
   }
 });
+
+
 module.exports = {
   addMovie,
   getMovies,
@@ -255,5 +304,7 @@ module.exports = {
   getMoviesByProjection,
   aggregatePagination,
   addMultiple,
-  findWithKeyword
+  findWithKeyword,
+// paginationMovies,
+  projectMovies
 };
