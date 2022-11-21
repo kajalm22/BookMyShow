@@ -12,11 +12,13 @@ const bookingSchema = mongoose.Schema(
       required: true,
       ref: "Movies",
     },
+  
 
     seats: {
       type: String,
       required: [true, "Please mention number of seats"],
       enum: ["UNAVAILABLE", "AVAILABLE"],
+      default: "AVAILABLE"
     },
     status: {
       type: String,
@@ -38,4 +40,4 @@ const bookingSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Booking", bookingSchema);
+module.exports = mongoose.model("Booking", bookingSchema)

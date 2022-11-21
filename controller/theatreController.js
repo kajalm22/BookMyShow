@@ -1,5 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Theatre = require("../model/theatreModel");
+const Movies = require("../model/movieModel")
+const mongoose = require("mongoose")
 
 const Ajv = require("ajv");
 const ajv = new Ajv();
@@ -10,6 +12,9 @@ const addTheatre = asyncHandler(async (req, res) => {
   const schema = {
     type: "object",
     properties: {
+      theatre_id: {
+        type: "number"
+      },
       theatreName: {
         type: "string",
       },
@@ -17,7 +22,7 @@ const addTheatre = asyncHandler(async (req, res) => {
         type: "string",
       },
     },
-    required: ["theatreName", "address"],
+    required: ["theatre_id" , "theatreName", "address"],
     additionalProperties: true,
   };
 
@@ -30,9 +35,10 @@ const addTheatre = asyncHandler(async (req, res) => {
     //res.status(400).json({ err: validate.errors });
   }
 
-  const { theatreName, address } = req.body;
+  const { theatre_id , theatreName, address } = req.body;
 
   const newTheatre = await Theatre.create({
+    theatre_id,
     theatreName,
     address,
   });
@@ -40,6 +46,7 @@ const addTheatre = asyncHandler(async (req, res) => {
   if (newTheatre) {
     res.status(201).json({
       message: "Theatre has been added successfully",
+      theatre_id,
       theatreName,
       address,
     });
