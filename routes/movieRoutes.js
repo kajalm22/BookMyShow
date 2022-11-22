@@ -12,7 +12,8 @@ const {
   findWithKeyword,
  
   projectMovies,
-  // paginationMovies,
+  saveMovies,
+  paginationMovies,
 } = require("../controller/movieController");
 const { getTheatre } = require("../controller/theatreController");
 const router = express.Router();
@@ -35,10 +36,12 @@ router.route("/aggregatePagination").get(aggregatePagination);
 
 router.route("/addMultiple").post(addMultiple);
 
-// router.route("paginationUsingAggregate").get(paginationMovies)
+router.route("/paginationUsingAggregate").get(paginationMovies)
 
 router.route("/search/:key").get(findWithKeyword)
 
 router.route("/getByAggregateprojection").get(projectMovies)
+
+router.route("/saveMovies").post(saveMovies)
 
 module.exports = router;

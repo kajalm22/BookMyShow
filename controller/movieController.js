@@ -13,7 +13,7 @@ const addMovie = asyncHandler(async (req, res) => {
   const schema = {
     type: "object",
     properties: {
-      theatre_id: {type: "number"},
+      theatre_id: {type: "string"},
       title: { type: "string" },
       description: { type: "string" },
       releaseDate: { type: "string" },
@@ -70,16 +70,9 @@ const addMovie = asyncHandler(async (req, res) => {
   });
 
   if (newMovie) {
+    console.log(newMovie)
     res.status(201).json({
-      message: "Movie has been added successfully",
-      theatre_id,
-      title,
-      description,
-      releaseDate,
-      genre,
-      duration,
-      amount,
-      // theatreName,
+      message: "Movie has been added successfully"
     });
   } else {
     res.status(400);
@@ -88,13 +81,24 @@ const addMovie = asyncHandler(async (req, res) => {
   //res.status(200).json(newMovie);
 });
 
+const saveMovies = asyncHandler ( async ( req , res) => {
+  try {
+    const data = req.body
+    const movies = await Movies.create(data)
+    console.log(movies)
+    res.status(201).json(movies)
+  } catch (error) {
+    res.status(500).json(err)
+  }
+})
+
 
 //find all matching keywords in title
 const findWithKeyword = asyncHandler ( async ( req , res) => {
   let data = await Movies.find( 
     {
       "$or": [
-        {title :{$regex:req.params.key} }
+        {title :{$regex:req.params.key , $options:"i"} }
       ]
     } 
   )
@@ -107,9 +111,7 @@ const findWithKeyword = asyncHandler ( async ( req , res) => {
 // findOne by  title , use projection and populate
 const populateMovies = async (req, res) => {
   try {
-    const movie = await Movies.findOne({title: "sacred"})
-    // .select("theatre_id address")
-    .populate('theatre_id');
+    const movie = await Movies.findOne({title: "sacrednow2"},{genre:0}).populate('theatre_id') ;
     
   //console.log(movie);
   res.status(200).json(movie)   
@@ -141,7 +143,7 @@ const aggregatePagination = asyncHandler(async (req, res) => {
       .skip(page * limit)
       .limit(limit);
 
-    const total = await Movies.countDocuments(); //gives total no of data in collection
+    const total = await Movies.countDocuments(); //gives total no of docs in collection
 
     const response = {
       total,
@@ -159,24 +161,44 @@ const aggregatePagination = asyncHandler(async (req, res) => {
     
 });
 
-// const paginationMovies= async (req, res) => {
-//   const page = req.query.page;
-//   const limit = parseInt(req.query.limit);
-//   console.log(page);
-//   console.log(limit);
+const paginationMovies= async (req, res) => {
+  //  const text = req.query.text;
+  const page = req.query.page ;
+  let limit = parseInt (req.query.limit) || 5;
+  let skip = ((page - 1) * limit) || 0
+  // console.log(page);
+  // console.log(limit);
 
-//   try {
-//       const result = await Movies.aggregate([
-//           { $skip: (page - 1) * limit },
-//           { $limit: limit },
-//           { $sort: { title: 1 } }
-//       ])
-//       console.log(result)
-//       res.status(200).json(result)
-//   } catch (err) {
-//       res.status(500).json(err.message)
-//   }
-// }
+  try {
+      const result = await Movies.aggregate([
+          // { $search: {autocomplete: {query: "great" , path: "title"}}},
+
+          // {
+          //   '$search': {
+          //     'text': {
+          //       'query' : '${text}',
+          //       'path': 'title'
+          //     }
+          //   }
+          // },
+        
+          { $skip: skip },
+          { $limit: limit },
+          { $project: {title: 1 , releaseDate: 1 , amount: 1}},
+          { $sort: { releaseDate: 1 } 
+      
+        }
+      ])
+const total = await Movies.countDocuments()
+      // console.log(result)
+      res.json({ paginatedResult: { pageNumber: page, limit: limit , 
+      movieLists: result , totalCount : total }})
+
+  } catch (err) {
+      res.status(500).json(err.message)
+  }
+
+}
 
 
 // To get one movie by title
@@ -189,7 +211,7 @@ const getOneMovie = asyncHandler(async (req, res) => {
 //get all movies by pagination
 const getMovies = asyncHandler(async (req, res) => {
   // let aggregate_options = []
-  const page = req.query.p || 1;
+  const page = req.query.page || 1;
   const perPage = 5;
   const movies = await Movies.find()
     .skip((page - 1) * perPage)
@@ -209,15 +231,14 @@ const getMovies = asyncHandler(async (req, res) => {
 const getMoviesByProjection = asyncHandler(async (req, res) => {
   const movies = await Movies.findById(req.params.id, {
     title: 1,
-    // _id: 0,
     theatreName: 1,
-  }).populate("theatre_id");
+  }).populate("theatre_id")
   res.status(200).json(movies);
 });
 
 
 
-//get by aggregate projection
+//find by aggregate projection
 const projectMovies = async (req, res) => {
   try {
       const result = await Movies.aggregate([
@@ -247,17 +268,9 @@ const addMultiple = asyncHandler(async (req, res) => {
   const newMovies = await Movies.insertMany(req.body)
   
   if (newMovies) {
+    console.log(newMovies)
     res.status(201).json({
-      message: "Multiple movies added successfully",
-
-      title,
-      description,
-      releaseDate,
-      duration,
-      genre,
-      amount,
-      
-    });
+      message: "Multiple movies added successfully"});
   } else {
     res.status(400).json({ message: "Something went wrong!" });
   }
@@ -305,6 +318,7 @@ module.exports = {
   aggregatePagination,
   addMultiple,
   findWithKeyword,
-// paginationMovies,
-  projectMovies
+paginationMovies,
+  projectMovies,
+  saveMovies
 };
