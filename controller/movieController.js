@@ -162,12 +162,10 @@ const aggregatePagination = asyncHandler(async (req, res) => {
 });
 
 const paginationMovies= async (req, res) => {
-  //  const text = req.query.text;
+    // const text = req.query.text;
   const page = req.query.page ;
   let limit = parseInt (req.query.limit) || 5;
   let skip = ((page - 1) * limit) || 0
-  // console.log(page);
-  // console.log(limit);
 
   try {
       const result = await Movies.aggregate([
@@ -182,6 +180,11 @@ const paginationMovies= async (req, res) => {
           //   }
           // },
         
+          // { $match:{
+          //   $text: { $search: "text"}
+          // }},
+         
+          
           { $skip: skip },
           { $limit: limit },
           { $project: {title: 1 , releaseDate: 1 , amount: 1}},
