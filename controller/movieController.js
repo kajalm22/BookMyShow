@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
 
 const Ajv = require("ajv");
+const { query } = require("express");
+const { db } = require("../model/theatreModel");
 const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
@@ -165,25 +167,41 @@ const paginationMovies= async (req, res) => {
   const page = req.query.page ;
   let limit = parseInt (req.query.limit) || 5;
   let skip = ((page - 1) * limit) || 0
-
+  
   try {
       const result = await Movies.aggregate([
-
+        
           { $match: {title: {$regex: title , $options: 'i'}}},
-          { $skip: skip },
-          { $limit: limit },
+          { $facet: {
+            paginatedResult: [
+              { $match: title },
+              { $skip: skip },
+              { $limit: limit }
+            ],
+            totalCount: [
+              { $match: title },
+              { $count: 'totalCount' }
+            ]
+          
+          }},
+      
+          // { $skip: skip },
+          // { $limit: limit },
           { $project: {title: 1 , releaseDate: 1 }},
           { $sort: { releaseDate: 1 } 
         }
       ])
-      const total = await Movies.countDocuments()
+
+      // const total = await Movies.countDocuments()
+      
       // console.log(result)
-      res.json({ paginatedResult: { pageNumber: page, limit: limit , totalCount : total ,
+      res.status(200).json({ paginatedResult: { pageNumber: page, limit: limit , 
+        totalCount : total,
       // movieLists: result , 
-      searchedMovie: result
+      searchedMovie: result 
        }})
   } catch (err) {
-      res.status(500).json( err , {message :"Could not find "})
+      res.status(500).json(err)
   }
 }
 
