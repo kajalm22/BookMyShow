@@ -71,15 +71,15 @@ const addMovie = asyncHandler(async (req, res) => {
 
   if (newMovie) {
     console.log(newMovie)
-    res.status(201).json({
+    res.status(201).json( newMovie ,{
       message: "Movie has been added successfully"
     });
   } else {
-    res.status(400);
-    throw new Error("Something went wrong");
+    res.status(400).json("Something went wrong.");
   }
   //res.status(200).json(newMovie);
 });
+
 
 //save movies
 const saveMovies = asyncHandler ( async ( req , res) => {
@@ -164,6 +164,7 @@ const aggregatePagination = asyncHandler(async (req, res) => {
 
 //search by keyword for movie title with aggregate pagination
 const paginationMovies= async (req, res) => {
+  const title = req.query.title;
   const page = req.query.page ;
   let limit = parseInt (req.query.limit) || 5;
   let skip = ((page - 1) * limit) || 0
@@ -171,23 +172,22 @@ const paginationMovies= async (req, res) => {
   try {
       const result = await Movies.aggregate([
 
+          { $match: {title: {$regex: title , $options: 'i'}}},
           { $skip: skip },
           { $limit: limit },
           { $project: {title: 1 , releaseDate: 1 }},
           { $sort: { releaseDate: 1 } 
-      
         }
       ])
-      const searchedMovie = await Movies.find({$text: {$search: "avengers"}})
       const total = await Movies.countDocuments()
       // console.log(result)
       res.json({ paginatedResult: { pageNumber: page, limit: limit , totalCount : total ,
       // movieLists: result , 
-      searchedMovie: searchedMovie}})
+      searchedMovie: result
+       }})
   } catch (err) {
       res.status(500).json( err , {message :"Could not find "})
   }
-
 }
 
 
