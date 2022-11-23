@@ -42,6 +42,6 @@ const movieSchema =  new mongoose.Schema(
     timestamps: true,
   }
 );
-schema.index({title: 'text'}) //creating an index on title field for text search
+// schema.index({title: 'text'}) //creating an index on title field for text search
 
 module.exports = mongoose.model("Movies", movieSchema);
