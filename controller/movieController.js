@@ -81,6 +81,7 @@ const addMovie = asyncHandler(async (req, res) => {
   //res.status(200).json(newMovie);
 });
 
+//save movies
 const saveMovies = asyncHandler ( async ( req , res) => {
   try {
     const data = req.body
@@ -161,44 +162,30 @@ const aggregatePagination = asyncHandler(async (req, res) => {
     
 });
 
+//search by keyword for movie title with aggregate pagination
 const paginationMovies= async (req, res) => {
-    // const text = req.query.text;
   const page = req.query.page ;
   let limit = parseInt (req.query.limit) || 5;
   let skip = ((page - 1) * limit) || 0
 
   try {
       const result = await Movies.aggregate([
-          // { $search: {autocomplete: {query: "great" , path: "title"}}},
 
-          // {
-          //   '$search': {
-          //     'text': {
-          //       'query' : '${text}',
-          //       'path': 'title'
-          //     }
-          //   }
-          // },
-        
-          // { $match:{
-          //   $text: { $search: "text"}
-          // }},
-         
-          
           { $skip: skip },
           { $limit: limit },
-          { $project: {title: 1 , releaseDate: 1 , amount: 1}},
+          { $project: {title: 1 , releaseDate: 1 }},
           { $sort: { releaseDate: 1 } 
       
         }
       ])
-const total = await Movies.countDocuments()
+      const searchedMovie = await Movies.find({$text: {$search: "avengers"}})
+      const total = await Movies.countDocuments()
       // console.log(result)
-      res.json({ paginatedResult: { pageNumber: page, limit: limit , 
-      movieLists: result , totalCount : total }})
-
+      res.json({ paginatedResult: { pageNumber: page, limit: limit , totalCount : total ,
+      // movieLists: result , 
+      searchedMovie: searchedMovie}})
   } catch (err) {
-      res.status(500).json(err.message)
+      res.status(500).json( err , {message :"Could not find "})
   }
 
 }
@@ -211,31 +198,24 @@ const getOneMovie = asyncHandler(async (req, res) => {
   res.status(200).json(movie);
 });
 
+
 //get all movies by pagination
 const getMovies = asyncHandler(async (req, res) => {
-  // let aggregate_options = []
   const page = req.query.page || 1;
   const perPage = 5;
   const movies = await Movies.find()
     .skip((page - 1) * perPage)
     .limit(perPage)
-
-  //   let match = {}
-
-  // if(req.query.q) 
-  // match.title = {$regex : req.query.q , $options: "i"}
-  // aggregate_options.push({$match: match})
-
-
   res.status(200).json(movies);
 });
 
-//find using projection and populate
+
+//find using projection 
 const getMoviesByProjection = asyncHandler(async (req, res) => {
   const movies = await Movies.findById(req.params.id, {
     title: 1,
     theatreName: 1,
-  }).populate("theatre_id")
+  })
   res.status(200).json(movies);
 });
 
