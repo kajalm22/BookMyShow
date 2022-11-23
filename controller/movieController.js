@@ -1,15 +1,11 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
-//  const Theatre = require("../model/theatreModel");
-// const mongoose = require("mongoose");
+
 const Ajv = require("ajv");
-// const res = require("express/lib/response");
-// const { json } = require("express/lib/response");
-// const { ObjectID } = require("bson");
-// const { populate } = require("../model/theatreModel");
 const ajv = new Ajv();
 
 const addMovie = asyncHandler(async (req, res) => {
+  //AJV 
   const schema = {
     type: "object",
     properties: {
@@ -86,10 +82,11 @@ const saveMovies = asyncHandler ( async ( req , res) => {
   try {
     const data = req.body
     const movies = await Movies.create(data)
-    console.log(movies)
-    res.status(201).json(movies)
+    movies.save()
+    // console.log(movies)
+    res.status(201).json(movies , {message: "Movie saved successfully"})
   } catch (error) {
-    res.status(500).json(err)
+    res.status(500).json(error)
   }
 })
 
