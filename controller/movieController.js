@@ -306,8 +306,9 @@ const deletedMovies = asyncHandler(async (req, res) => {
 //get data using axios
 const getByAxios = asyncHandler ( async ( req , res) => {
   await axios.get('https://www.7timer.info/bin/astro.php?lon=113.2&lat=23.1&ac=0&unit=metric&output=json&tzshift=0')
-  .then(function (res) {
-    console.log(res);
+  .then(function (data) {
+    
+    res.json(data)
   })
   .catch(function (error) {
     console.log(error);
