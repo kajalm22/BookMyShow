@@ -317,13 +317,13 @@ const getByAxios = asyncHandler ( async ( req , res) => {
 
 
 //get data using fetch
-// const getByFetch = asyncHandler ( async ( req , res) => {
-//   const fetch = new FetchStream ('https://world.openfoodfacts.org/api/v0/product/737628064502.json')
-//   fetch.on("data", function(chunk){
-//     console.log(chunk);
-// });
+const getByFetch = asyncHandler ( async ( req , res) => {
+  const fetch = new FetchStream ('https://world.openfoodfacts.org/api/v0/product/737628064502.json')
+  fetch.on("data", function(chunk){
+    console.log(chunk);
+});
 
-// })
+})
 
 module.exports = {
   addMovie,
