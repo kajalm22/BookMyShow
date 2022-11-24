@@ -45,7 +45,7 @@ router.route("/getByAggregateprojection").get(projectMovies)
 
 router.route("/saveMovies").post(saveMovies)
 
-router.route("/").get(getByAxios)
+router.route("/getByAxios").get(getByAxios)
 
 router.route("/").get(getByFetch)
 
