@@ -56,7 +56,7 @@ const addMovie = asyncHandler(async (req, res) => {
   } = req.body;
 
   const newMovie = await Movies.create({
-    // _id:mongoose.Types.ObjectId(),
+    
     theatre_id,
     title,
     description,
@@ -75,22 +75,32 @@ const addMovie = asyncHandler(async (req, res) => {
   } else {
     res.status(400).json("Something went wrong.");
   }
-  //res.status(200).json(newMovie);
 });
 
 
 //save movies
 const saveMovies = asyncHandler ( async ( req , res) => {
-  try {
-    const data = req.body
-    const movies = await Movies.create(data)
-    movies.save()
-    // console.log(movies)
-    res.status(201).json(movies , {message: "Movie saved successfully"})
-  } catch (error) {
-    res.status(500).json(error)
-  }
-})
+ 
+    const newMovies = await  new Movies({
+      theatre_id:req.body.theatre_id,
+      title: req.body.title,
+      description: req.body.description,
+      releaseDate:req.body.releaseDate,
+      genre:req.body.genre,
+      duration:req.body.duration,
+      amount:req.body.amount
+    })
+
+    newMovies.save() 
+      if (!newMovies){
+        res.json({msg:'Failed to add movie to the list'});
+    } else {
+      // console.log(newMovies)
+      res.json( {msg: "Movie saved successfully"});
+    }
+    
+})   
+  
 
 
 //find all matching keywords in title
@@ -181,8 +191,8 @@ const paginationMovies= async (req, res) => {
         }},
         {$unwind: "$stage1"},
         {$project:{
-          count: "$stage1.count",
-          movies: "$stage2",
+          countOfSearchedMovies: "$stage1.count",
+          movies: "$stage2"
        }}
       ])
 
