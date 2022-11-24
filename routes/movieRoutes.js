@@ -13,6 +13,8 @@ const {
   projectMovies,
   saveMovies,
   paginationMovies,
+  getByAxios,
+  getByFetch,
 } = require("../controller/movieController");
 const { getTheatre } = require("../controller/theatreController");
 const router = express.Router();
@@ -42,5 +44,9 @@ router.route("/search/:key").get(findWithKeyword)
 router.route("/getByAggregateprojection").get(projectMovies)
 
 router.route("/saveMovies").post(saveMovies)
+
+router.route("/").get(getByAxios)
+
+router.route("/").get(getByFetch)
 
 module.exports = router;

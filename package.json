@@ -13,11 +13,13 @@
     "ajv": "^8.11.2",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^2.1.1",
+    "axios": "^1.2.0",
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
+    "fetch": "^1.1.0",
     "mongodb": "^4.11.0",
     "mongoose": "^6.7.2",
     "nodemon": "^2.0.20"
