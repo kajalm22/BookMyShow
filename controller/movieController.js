@@ -81,7 +81,7 @@ const addMovie = asyncHandler(async (req, res) => {
 //save movies
 const saveMovies = asyncHandler ( async ( req , res) => {
  
-    const newMovies = await  new Movies({
+    const movies = new Movies({
       theatre_id:req.body.theatre_id,
       title: req.body.title,
       description: req.body.description,
@@ -91,17 +91,11 @@ const saveMovies = asyncHandler ( async ( req , res) => {
       amount:req.body.amount
     })
 
-    newMovies.save() 
-      if (!newMovies){
-        res.json({msg:'Failed to add movie to the list'});
-    } else {
-      // console.log(newMovies)
-      res.json( {msg: "Movie saved successfully"});
-    }
+    movies.save()
+    res.status(200).json("Added")
     
 })   
   
-
 
 //find all matching keywords in title
 const findWithKeyword = asyncHandler ( async ( req , res) => {
@@ -185,7 +179,8 @@ const paginationMovies= async (req, res) => {
              { $sort: { releaseDate: 1 } 
         },
 
-          { $facet: { "stage1": [{ $count: "count"}],
+          { $facet: {
+          "stage1" : [{ $count: "count"}],
           "stage2" : [ { "$skip": skip}, {"$limit": limit} ]
         
         }},
@@ -317,7 +312,7 @@ module.exports = {
   aggregatePagination,
   addMultiple,
   findWithKeyword,
-paginationMovies,
+  paginationMovies,
   projectMovies,
   saveMovies
 };
