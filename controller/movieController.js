@@ -172,33 +172,24 @@ const paginationMovies= async (req, res) => {
       const result = await Movies.aggregate([
         
           { $match: {title: {$regex: title , $options: 'i'}}},
-          { $facet: {
-            paginatedResult: [
-              { $match: title },
-              { $skip: skip },
-              { $limit: limit }
-            ],
-            totalCount: [
-              { $match: title },
-              { $count: 'totalCount' }
-            ]
-          
-          }},
-      
-          // { $skip: skip },
-          // { $limit: limit },
-          { $project: {title: 1 , releaseDate: 1 }},
-          { $sort: { releaseDate: 1 } 
-        }
+             { $sort: { releaseDate: 1 } 
+        },
+
+          { $facet: { "stage1": [{ $count: "count"}],
+          "stage2" : [ { "$skip": skip}, {"$limit": limit} ]
+        
+        }},
+        {$unwind: "$stage1"},
+        {$project:{
+          count: "$stage1.count",
+          movies: "$stage2",
+       }}
       ])
 
-      // const total = await Movies.countDocuments()
-      
+      // const total = await Movies.countDocuments({})
       // console.log(result)
-      res.status(200).json({ paginatedResult: { pageNumber: page, limit: limit , 
-        totalCount : total,
-      // movieLists: result , 
-      searchedMovie: result 
+      res.status(200).json(
+        { Result: { pageNumber: page, limit: limit , searchedMovie: result 
        }})
   } catch (err) {
       res.status(500).json(err)
