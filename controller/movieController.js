@@ -321,16 +321,23 @@ console.log(err)
 
 
 //get data using fetch
-const options = {
+// const options = {
+//     method: 'GET',
+//     headers: {
+//       'X-RapidAPI-Key': '7a32908fa0msh680b63b488f9d26p1da606jsn8c3fb3f95650'
+//     }
+//   }
+
+// const url = 'https://world.openfoodfacts.org/api/v0/product/737628064502.json';
+
+const getByFetch = async (req, res) => {
+  const options = {
     method: 'GET',
     headers: {
       'X-RapidAPI-Key': '7a32908fa0msh680b63b488f9d26p1da606jsn8c3fb3f95650'
     }
   }
-
-const url = 'https://world.openfoodfacts.org/api/v0/product/737628064502.json';
-
-const getByFetch = async (req, res) => {
+  const url = 'https://world.openfoodfacts.org/api/v0/product/737628064502.json';
     try {
         const data = await fetch(url,options)
         .then((res)=> 
