@@ -15,6 +15,7 @@ const {
   paginationMovies,
   getByAxios,
   getByFetch,
+ 
 } = require("../controller/movieController");
 const { getTheatre } = require("../controller/theatreController");
 const router = express.Router();
@@ -47,6 +48,6 @@ router.route("/saveMovies").post(saveMovies)
 
 router.route("/getByAxios").get(getByAxios)
 
-router.route("/").get(getByFetch)
+router.route("/getByFetch").get(getByFetch)
 
 module.exports = router;
