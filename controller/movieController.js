@@ -1,13 +1,15 @@
 const asyncHandler = require("express-async-handler");
 const Movies = require("../model/movieModel");
 const Ajv = require("ajv");
-const { query } = require("express");
+const { query, response, json } = require("express");
 const { db } = require("../model/theatreModel");
 const ajv = new Ajv();
-
+// const util = require("util")
 const axios = require("axios")
-const fetch = require("fetch")
+const fetch = require("node-fetch");
+const { CURSOR_FLAGS } = require("mongodb");
 
+// const {  stringify} = require("flatted");
 
 const addMovie = asyncHandler(async (req, res) => {
   //AJV 
@@ -304,27 +306,42 @@ const deletedMovies = asyncHandler(async (req, res) => {
 });
 
 //get data using axios
-const getByAxios = asyncHandler ( async ( req , res) => {
-  await axios.get('https://www.7timer.info/bin/astro.php?lon=113.2&lat=23.1&ac=0&unit=metric&output=json&tzshift=0')
-  .then(function (data) {
-    
-    res.json(data)
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-  
-})
+const getByAxios = async (req , res) => {
+    try{
+  const { data}  = await axios.get(
+    `https://api.openweathermap.org/data/2.5/weather?q=Chicago&appid=63bdb51dde03c0c24aff2141d65d6fe5`
+
+)
+res.send(data) 
+  }catch(err){
+console.log(err)
+  }
+}
+  // console.log(data)
 
 
 //get data using fetch
-const getByFetch = asyncHandler ( async () => {
-  const fetch = new FetchStream ('https://world.openfoodfacts.org/api/v0/product/737628064502.json')
-  fetch.on("data", function(chunk){
-    console.log(chunk);
-});
+const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': '7a32908fa0msh680b63b488f9d26p1da606jsn8c3fb3f95650'
+    }
+  }
 
-})
+const url = 'https://world.openfoodfacts.org/api/v0/product/737628064502.json';
+
+const getByFetch = async (req, res) => {
+    try {
+        const data = await fetch(url,options)
+        .then((res)=> 
+        res.json())
+        res.status(200).json(data)
+    }
+
+    catch (err) {
+        res.status(500).json(err)
+    }
+}
 
 module.exports = {
   addMovie,
@@ -341,5 +358,6 @@ module.exports = {
   projectMovies,
   saveMovies,
   getByAxios,
-  getByFetch
+  getByFetch,
+  
 };
