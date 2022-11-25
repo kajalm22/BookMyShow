@@ -359,7 +359,7 @@ const getPaginatedData = async (req, res) => {
       'X-RapidAPI-Key': '7a32908fa0msh680b63b488f9d26p1da606jsn8c3fb3f95650'
     }
   }
-  const url = `https://api.punkapi.com/v2/beers?page=${page}&per_page=${limit}`;
+  const url = `https://techcrunch.com/wp-json/wp/v2/posts?page=${page}&per_page=${limit}`;
     try {
         const data = await fetch(url,options)
         .then((res)=> 
