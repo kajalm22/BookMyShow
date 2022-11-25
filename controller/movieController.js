@@ -327,7 +327,6 @@ console.log(err)
 //       'X-RapidAPI-Key': '7a32908fa0msh680b63b488f9d26p1da606jsn8c3fb3f95650'
 //     }
 //   }
-
 // const url = 'https://world.openfoodfacts.org/api/v0/product/737628064502.json';
 
 const getByFetch = async (req, res) => {
@@ -350,6 +349,31 @@ const getByFetch = async (req, res) => {
     }
 }
 
+//fetch data using pagination from a movies api
+const getPaginatedData = async (req, res) => {
+  const page = req.query.page
+  const limit = req.query.limit
+  const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': '7a32908fa0msh680b63b488f9d26p1da606jsn8c3fb3f95650'
+    }
+  }
+  const url = `https://api.punkapi.com/v2/beers?page=${page}&per_page=${limit}`;
+    try {
+        const data = await fetch(url,options)
+        .then((res)=> 
+        res.json())
+        res.status(200).json(data)
+    }
+
+    catch (err) {
+        res.status(500).json(err)
+    }
+}
+
+
+
 module.exports = {
   addMovie,
   getMovies,
@@ -366,5 +390,6 @@ module.exports = {
   saveMovies,
   getByAxios,
   getByFetch,
+  getPaginatedData
   
 };
