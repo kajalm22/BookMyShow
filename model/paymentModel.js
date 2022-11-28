@@ -31,6 +31,10 @@ const paymentSchema = mongoose.model(
       required: true,
       enum: ["PAID", "UNPAID"],
     },
+    total:{
+      type: Number,
+      required: true
+    },
 
     transactionID: {
       type: Number,
