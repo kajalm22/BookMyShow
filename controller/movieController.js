@@ -41,7 +41,7 @@ const addMovie = asyncHandler(async (req, res) => {
 
   const validate = ajv.compile(schema);
 
-  const valid = validate(req.body);
+  const valid = validate(req.body)
 
   if (!valid) {
     console.log(validate.errors);

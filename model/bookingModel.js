@@ -27,7 +27,7 @@ const bookingSchema = mongoose.Schema(
     },
     bookingID: {
       type: Number,
-      required: true,
+      // required: true,
     },
     amount: {
       type: Number,

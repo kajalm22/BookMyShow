@@ -3,35 +3,37 @@ const AJV = require("ajv")
 const ajv = new Ajv()
 const  Payment = require("../model/paymentModel")
 const Customers = require("../model/custModel")
+const mongoose = require("mongoose")
 
 
 const newPayment = (async ( req , res) => {
 
-    const schema = {
-        type: "object",
-        properties: {
-        customer_id: {type: "string"} ,
-        paymentType: {type: "string"}, 
-        amount: {type: "number"} , 
-        status: {type: "string"} ,
-        total: {type: "number"}
-    },
-    required: ["customer_id" , "paymentType",  "amount" ,  "status" , "total"]
-}
+//     const schema = {
+//         type: "object",
+//         properties: {
+//         customer_id: {type: "string"} ,
+//         paymentType: {type: "string"}, 
+//         amount: {type: "number"} , 
+//         status: {type: "string"} ,
+//         total: {type: "number"}
+//     },
+//    // required: ["customer_id" , "paymentType",  "amount" ,  "status" , "total"]
+// }
 
-const validate = ajv.compile(schema);
+// const validate = ajv.compile(schema);
 
-  const valid = validate(req.body);
+//   const valid = validate(req.body);
 
-  if (!valid) {
-    console.log(validate.errors);
-    res.status(400).json({ err: validate.errors });
-  }
+//   if (!valid) {
+//     console.log(validate.errors);
+//     res.status(400).json({ err: validate.errors });
+//   }
 
-    const { customer_id , paymentType,  amount ,  status , total } = req.body
+    const { Customers , Booking , paymentType,  amount ,  status , total } = req.body
 
     const data = await Payment.create({
-        customer_id,
+        Customers,
+        Booking,
         paymentType,
         amount,
         status,
@@ -41,7 +43,7 @@ const validate = ajv.compile(schema);
 
     if(data){
     console.log(data)
-    res.status(201).json(data , {message: "Payment details added!"})
+    res.status(201).json( {message: "Payment details added!"})
     }else{
 
     res.status(500).json("Something went wrong")
@@ -64,18 +66,19 @@ const status = (async ( req , res) => {
             },
             {
                 $project: {
-                    _id: 0,
+                    //  _id: 0,
                     total: 1,
-                    customer_id: "$_id.customer_id",
-                    status: "$_id.status"
+                    // customer_id: "$_id.customer_id",
+                    // status: "$_id.status"
     
                 },
             },
             {
                 $lookup:{
                     from: "Customers",
-                    localField: ,
-                    foreignField: 
+                    localField: "payment_id" ,
+                    foreignField: "customer_id",
+                    as: "PaymentDetails"
                 }
             }
         ])
