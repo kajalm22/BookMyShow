@@ -1,17 +1,51 @@
-
+const { default: Ajv } = require("ajv")
+const AJV = require("ajv")
+const ajv = new Ajv()
 const  Payment = require("../model/paymentModel")
+const Customers = require("../model/custModel")
 
 
 const newPayment = (async ( req , res) => {
-try {
-    const data = req.body
 
-    const result = Payment.create(data)
-    console.log(result)
-    res.status(201).json(result)
-} catch (error) {
-    res.status(500).json(err.message)
+    const schema = {
+        type: "object",
+        properties: {
+        customer_id: {type: "string"} ,
+        paymentType: {type: "string"}, 
+        amount: {type: "number"} , 
+        status: {type: "string"} ,
+        total: {type: "number"}
+    },
+    required: ["customer_id" , "paymentType",  "amount" ,  "status" , "total"]
 }
+
+const validate = ajv.compile(schema);
+
+  const valid = validate(req.body);
+
+  if (!valid) {
+    console.log(validate.errors);
+    res.status(400).json({ err: validate.errors });
+  }
+
+    const { customer_id , paymentType,  amount ,  status , total } = req.body
+
+    const data = await Payment.create({
+        customer_id,
+        paymentType,
+        amount,
+        status,
+        total,
+        // transaction_id
+    })
+
+    if(data){
+    console.log(data)
+    res.status(201).json(data , {message: "Payment details added!"})
+    }else{
+
+    res.status(500).json("Something went wrong")
+    }
 })
 
 
@@ -23,7 +57,8 @@ const status = (async ( req , res) => {
                     customer_id: "$customer_id",
                     status: "$status",
                     amount: "$amount",
-                    total: { $sum: "$total"}
+                    total: 
+                    { $sum: "$total"}
                     
                 }
             },
@@ -31,13 +66,16 @@ const status = (async ( req , res) => {
                 $project: {
                     _id: 0,
                     total: 1,
-                    status: 1
+                    customer_id: "$_id.customer_id",
+                    status: "$_id.status"
     
                 },
             },
             {
                 $lookup:{
                     from: "Customers",
+                    localField: ,
+                    foreignField: 
                 }
             }
         ])

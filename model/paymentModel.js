@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const paymentSchema = mongoose.model(
+const paymentSchema = mongoose.Schema(
   {
     Customers: {
       type: mongoose.Schema.Types.ObjectId,
@@ -9,7 +9,7 @@ const paymentSchema = mongoose.model(
     },
     Booking: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: "Booking",
     },
 
@@ -38,12 +38,12 @@ const paymentSchema = mongoose.model(
 
     transactionID: {
       type: Number,
-      required: true,
+      // required: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  // {
+  //   // timestamps: true,
+  // }
 );
 
 module.exports = mongoose.model("Payment", paymentSchema);

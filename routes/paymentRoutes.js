@@ -6,3 +6,6 @@ const router = express.Router()
 router.route("/new").post(newPayment)
 
 router.route("/status").get(status)
+
+
+module.exports = router
