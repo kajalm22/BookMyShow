@@ -8,26 +8,26 @@ const mongoose = require("mongoose")
 
 const newPayment = (async ( req , res) => {
 
-//     const schema = {
-//         type: "object",
-//         properties: {
-//         customer_id: {type: "string"} ,
-//         paymentType: {type: "string"}, 
-//         amount: {type: "number"} , 
-//         status: {type: "string"} ,
-//         total: {type: "number"}
-//     },
-//    // required: ["customer_id" , "paymentType",  "amount" ,  "status" , "total"]
-// }
+    const schema = {
+        type: "object",
+        properties: {
+        customer_id: {type: "string"} ,
+        paymentType: {type: "string"}, 
+        amount: {type: "number"} , 
+        status: {type: "string"} ,
+        total: {type: "number"}
+    },
+   // required: ["customer_id" , "paymentType",  "amount" ,  "status" , "total"]
+}
 
-// const validate = ajv.compile(schema);
+const validate = ajv.compile(schema);
 
-//   const valid = validate(req.body);
+  const valid = validate(req.body);
 
-//   if (!valid) {
-//     console.log(validate.errors);
-//     res.status(400).json({ err: validate.errors });
-//   }
+  if (!valid) {
+    console.log(validate.errors);
+    res.status(400).json({ err: validate.errors });
+  }
 
     const { Customers , Booking , paymentType,  amount ,  status , total } = req.body
 
