@@ -8,26 +8,26 @@ const mongoose = require("mongoose")
 
 const newPayment = (async ( req , res) => {
 
-    const schema = {
-        type: "object",
-        properties: {
-        customer_id: {type: "string"} ,
-        paymentType: {type: "string"}, 
-        amount: {type: "number"} , 
-        status: {type: "string"} ,
-        total: {type: "number"}
-    },
-   // required: ["customer_id" , "paymentType",  "amount" ,  "status" , "total"]
-}
+//     const schema = {
+//         type: "object",
+//         properties: {
+//         customer_id: {type: "string"} ,
+//         paymentType: {type: "string"}, 
+//         amount: {type: "number"} , 
+//         status: {type: "string"} ,
+//         total: {type: "number"}
+//     },
+// //    required: ["Customers" , "Booking", "paymentType",  "amount" ,  "status" , "total"]
+// }
 
-const validate = ajv.compile(schema);
+// const validate = ajv.compile(schema);
 
-  const valid = validate(req.body);
+//   const valid = validate(req.body);
 
-  if (!valid) {
-    console.log(validate.errors);
-    res.status(400).json({ err: validate.errors });
-  }
+//   if (!valid) {
+//     console.log(validate.errors);
+//     res.status(400).json({ err: validate.errors });
+//   }
 
     const { Customers , Booking , paymentType,  amount ,  status , total } = req.body
 
@@ -90,4 +90,43 @@ const status = (async ( req , res) => {
 })
 
 
-module.exports = { status , newPayment}
+const grandTotal = (async ( req , res) => {
+    try {
+        const data = await Payment.aggregate([
+            {
+                $group: {
+                    customer_id: "$customer_id",
+                    status: "$status",
+                    amount: "$amount",
+                    total: 
+                    { $sum: "$total"}
+
+                }
+            },
+            {
+                $project:{
+                    _id: 0
+                
+
+                },
+                Paid: {
+                    $cond: [
+                        {
+                            $eq : [ "paid" , "unpaid"]
+                        }
+                    ]
+
+                    
+                }
+            }
+        ])
+        
+    } catch (error) {
+        
+    }
+
+})
+
+
+
+module.exports = { status , newPayment , grandTotal}
