@@ -90,54 +90,54 @@ const newPayment = (async ( req , res) => {
 // })
 
 
-const totalAmount = (async ( req , res) => {
-    try {
-        const data = await Payment.aggregate([
-            {
-                $group: {
-                    customer_id: "$customer_id",
-                    status: "$status",
-                    amount: "$amount",
-                    total: 
-                    { $sum: "$total"}
+// const totalAmount = (async ( req , res) => {
+//     try {
+//         const data = await Payment.aggregate([
+//             {
+//                 $group: {
+//                     customer_id: "$customer_id",
+//                     status: "$status",
+//                     amount: "$amount",
+//                     total: 
+//                     { $sum: "$total"}
 
-                }
-            },
-            {
-                $project:{
-                    _id: 0,
+//                 }
+//             },
+//             {
+//                 $project:{
+//                     _id: 0,
                 
 
-                },
-                Paid: {
-                    $cond: [
-                        {
-                            $eq : [ "$status" , "paid"] 
-                        },
-                            { paid: "$total"},
+//                 },
+//                 Paid: {
+//                     $cond: [
+//                         {
+//                             $eq : [ "$status" , "paid"] 
+//                         },
+//                             { paid: "$total"},
                         
-                    ]
+//                     ]
                     
-                },
-                Unpaid: {
-                    $cond: [
-                        {
-                            $eq: ["$status" , "unpaid"]
-                        },
-                        { unpaid: "$total"}
-                    ]
+//                 },
+//                 Unpaid: {
+//                     $cond: [
+//                         {
+//                             $eq: ["$status" , "unpaid"]
+//                         },
+//                         { unpaid: "$total"}
+//                     ]
 
-                }
-            }
-        ])
-        res.status(200).json(data)
+//                 }
+//             }
+//         ])
+//         res.status(200).json(data)
         
-    } catch (error) {
-        res.status(500).json(error)
-    }
+//     } catch (error) {
+//         res.status(500).json(error)
+//     }
 
-})
+// })
 
 
 
-module.exports = {  newPayment , totalAmount}
+module.exports = {  newPayment }

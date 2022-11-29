@@ -16,7 +16,7 @@ const paymentSchema = new  mongoose.Schema(
     paymentType: {
       type: String,
       required: true,
-      enum: ["CREDITCARD", "DEBITCARD", "NET-BANKING"],
+      enum: ["CREDITCARD", "DEBITCARD", "NETBANKING"],
     },
 
     amount: {

@@ -29,31 +29,35 @@ const status = (async ( req , res) => {
             {
                 $group: {
                     _id: {
-                        customer_id: "$customer_id",
+                        customer_id: "$Customers",
                         status: "$status",
-                        amount: "$amount",
                     
                     },
                     total: 
-                    { $sum: "$amount"}
+                    { $sum: "$amount"},
+                    detail: {$push: '$$ROOT'}
                     
                 }
             },
-            {
-                $project: {
-                    //    _id: 1,
-                    total: 1,
-                    customer_id: "$_id.customer_id",
-                    status: "$_id.status"
+            // {
+            //     $project: {
+            //         customer_id: "$_id.Customers",
+            //         status: "$_id.status",
+            //         total: 1,
     
-                },
-            },
+            //     },
+            // },
             {
                 $lookup:{
-                    from: "Customers",
-                    localField: "booking_id" ,
-                    foreignField: "customer_id",
-                    as: "BookingDetails"
+                    from: "customers",           //collection name which is to be joined
+                    localField: "Customers" ,   //from booking schema 
+                    foreignField: "_id",       //field from customer collection
+                    as: "customerDetail"
+                }
+            },
+            {
+                $unwind:{
+                    path: "$customerDetail"
                 }
             }
         ])
@@ -66,10 +70,37 @@ const status = (async ( req , res) => {
 })
 
 
-// second api
+
 const totalAmount = (async ( req , res) => {
     try {
-        const data = await Payment.aggregate([
+        const data = await Booking.aggregate([
+            {
+                $addFields: {
+                    paid : "$status.paid",
+                    unpaid: "$status.unpaid"
+                }
+            },
+            {
+                $lookup: {
+                    from: "customers",
+                    localField:"Customers",
+                    foreignField:"_id",
+                    as:"details"
+                }
+            },
+
+            { $unwind: "$details"},
+
+            {
+                $project: {
+                    customer_id: "$_id.customer_id",
+                    status: "$_id.status",
+                    amount: 1,
+                    total: 1,
+                }
+            },
+           
+            //
             {
                 $group:{
                     _id: {
@@ -78,20 +109,22 @@ const totalAmount = (async ( req , res) => {
                     amount: "$amount",
                  },
                     total: 
-                    { $sum: "$total"}
+                    { $sum: "$amount"}
 
                 }
             },
             {
-                $project:{
+                $project: {
                     // _id: 0,
-                    total: 1,
+                    
                     customer_id: "$_id.customer_id",
-                    status: "$_id.status"
-                
+                    status: "$_id.status",
+                    total: 1,
+        
 
                 },
-                Paid: {
+                Paid: { 
+                    $push: {
                     $cond: [
                         {
                             $eq : [ "$status" , "paid"] 
@@ -99,16 +132,26 @@ const totalAmount = (async ( req , res) => {
                             { paid: "$total"},
                         
                     ]
-                    
+                }   
                 },
                 Unpaid: {
+                    $push: {
                     $cond: [
                         {
                             $eq: ["$status" , "unpaid"]
                         },
-                        { unpaid: "$total"}
+                            { unpaid: "$total"}
                     ]
-
+                }
+                }
+            },
+            {
+                $project: {
+                    customer_id: "$_id.customer_id",
+                    status: "$_id.status",
+                    total: 1,
+                    Paid: "$Paid.paid",
+                    Unpaid: "$Unpaid.unpaid"
                 }
             }
         ])
@@ -119,6 +162,7 @@ const totalAmount = (async ( req , res) => {
     }
 
 })
+
 
 
 module.exports = { newBooking , status , totalAmount}
