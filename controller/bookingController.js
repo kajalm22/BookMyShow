@@ -25,20 +25,23 @@ const newBooking = (async (req , res) => {
 
 const status = (async ( req , res) => {
     try {
-        const data = await Payment.aggregate([
+        const data = await Booking.aggregate([
             {
                 $group: {
-                    customer_id: "$customer_id",
-                    status: "$status",
-                    amount: "$amount",
+                    _id: {
+                        customer_id: "$customer_id",
+                        status: "$status",
+                        amount: "$amount",
+                    
+                    },
                     total: 
-                    { $sum: "$total"}
+                    { $sum: "$amount"}
                     
                 }
             },
             {
                 $project: {
-                    //  _id: 0,
+                    //    _id: 1,
                     total: 1,
                     customer_id: "$_id.customer_id",
                     status: "$_id.status"
@@ -54,7 +57,7 @@ const status = (async ( req , res) => {
                 }
             }
         ])
-        console.log(data)
+        
         res.status(200).json(data)
         
     } catch (error) {
@@ -63,4 +66,59 @@ const status = (async ( req , res) => {
 })
 
 
-module.exports = { newBooking , status}
+// second api
+const totalAmount = (async ( req , res) => {
+    try {
+        const data = await Payment.aggregate([
+            {
+                $group:{
+                    _id: {
+                    customer_id: "$customer_id",
+                    status: "$status",
+                    amount: "$amount",
+                 },
+                    total: 
+                    { $sum: "$total"}
+
+                }
+            },
+            {
+                $project:{
+                    // _id: 0,
+                    total: 1,
+                    customer_id: "$_id.customer_id",
+                    status: "$_id.status"
+                
+
+                },
+                Paid: {
+                    $cond: [
+                        {
+                            $eq : [ "$status" , "paid"] 
+                        },
+                            { paid: "$total"},
+                        
+                    ]
+                    
+                },
+                Unpaid: {
+                    $cond: [
+                        {
+                            $eq: ["$status" , "unpaid"]
+                        },
+                        { unpaid: "$total"}
+                    ]
+
+                }
+            }
+        ])
+        res.status(200).json(data)
+        
+    } catch (error) {
+        res.status(500).json(error)
+    }
+
+})
+
+
+module.exports = { newBooking , status , totalAmount}
