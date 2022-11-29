@@ -33,6 +33,13 @@ const bookingSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    paid: {
+      type:Number,
+    },
+    unpaid: {
+      type: Number
+    }
+
   },
 
   {

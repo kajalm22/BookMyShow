@@ -3,14 +3,16 @@ const Customers = require("../model/custModel")
 
 
 const newBooking = (async (req , res) => {
-    const { Customers , Movies , status , seats , amount} = req.body
+    const { Customers , Movies , status , seats , amount , paid , unpaid} = req.body
 
     const data = await Booking.create({
         Customers , 
         Movies,
         seats,
         status,
-        amount
+        amount,
+        paid,
+        unpaid
     })
 
     if(data){
@@ -75,12 +77,7 @@ const status = (async ( req , res) => {
 const totalAmount = (async ( req , res) => {
     try {
         const data = await Booking.aggregate([
-            {
-                $addFields: {
-                    paid : "$100",
-                    unpaid: "$150"
-                }
-            },
+           
             {
                 $lookup: {
                     from: "customers",
@@ -103,7 +100,7 @@ const totalAmount = (async ( req , res) => {
            
             //
             {
-                $group:{
+                $group: {
                     _id: {
                     customer_id: "$customer_id",
                     status: "$status",
@@ -114,15 +111,21 @@ const totalAmount = (async ( req , res) => {
 
                 }
             },
-            {
-                $project: {
-                    // _id: 0,
+    {
+        $addFields: {
+            paidAmount : "$paid.total",
+            unpaidAmount : "$unpaid.total"
+        }
+    },
+    //         {
+    //             $project: {
+    //                 // _id: 0,
                     
-                    customer_id: "$_id.customer_id",
-                    status: "$_id.status",
-                    total: 1,
-                },
-
+    //                 customer_id: "$_id.customer_id",
+    //                 status: "$_id.status",
+    //                 total: 1,
+    //             },
+{
                 Paid: { 
                     $push: {
                     $cond: [
@@ -142,20 +145,21 @@ const totalAmount = (async ( req , res) => {
                         },
                             { unpaid: "$total"}
                     ]
-                }
-                }
+                } }               
             },
-            // {
-            //     $project: {
-            //         customer_id: "$_id.customer_id",
-            //         status: "$_id.status",
-            //         total: 1,
-            //         Paid: "$Paid.paid",
-            //         Unpaid: "$Unpaid.unpaid"
-            //     }
-            // }
+            
+            {
+                $project: {
+                    customer_id: "$_id.customer_id",
+                    status: "$_id.status",
+                    total: 1,
+                    Paid: "$Paid.paid",
+                    Unpaid: "$Unpaid.unpaid"
+                }
+            }
         ])
         res.status(200).json(data)
+        console.log(data)
         
     } catch (error) {
         res.status(500).json(error)
