@@ -26,6 +26,19 @@ const newBooking = (async (req , res) => {
 const status = (async ( req , res) => {
     try {
         const data = await Booking.aggregate([
+        {
+            $lookup:{
+                from: "customers",           //collection name which is to be joined
+                localField: "Customers" ,   //from booking schema 
+                foreignField: "_id",       //field from customer collection
+                as: "customerDetail"
+            }
+        },
+        {
+            $unwind:{
+                path: "$customerDetail"
+            }
+        },
             {
                 $group: {
                     _id: {
@@ -47,19 +60,7 @@ const status = (async ( req , res) => {
     
             //     },
             // },
-            {
-                $lookup:{
-                    from: "customers",           //collection name which is to be joined
-                    localField: "Customers" ,   //from booking schema 
-                    foreignField: "_id",       //field from customer collection
-                    as: "customerDetail"
-                }
-            },
-            {
-                $unwind:{
-                    path: "$customerDetail"
-                }
-            }
+            
         ])
         
         res.status(200).json(data)
@@ -76,8 +77,8 @@ const totalAmount = (async ( req , res) => {
         const data = await Booking.aggregate([
             {
                 $addFields: {
-                    paid : "$status.paid",
-                    unpaid: "$status.unpaid"
+                    paid : "$100",
+                    unpaid: "$150"
                 }
             },
             {
@@ -91,14 +92,14 @@ const totalAmount = (async ( req , res) => {
 
             { $unwind: "$details"},
 
-            {
-                $project: {
-                    customer_id: "$_id.customer_id",
-                    status: "$_id.status",
-                    amount: 1,
-                    total: 1,
-                }
-            },
+            // {
+            //     $project: {
+            //         customer_id: "$_id.customer_id",
+            //         status: "$_id.status",
+            //         amount: 1,
+            //         total: 1,
+            //     }
+            // },
            
             //
             {
@@ -120,9 +121,8 @@ const totalAmount = (async ( req , res) => {
                     customer_id: "$_id.customer_id",
                     status: "$_id.status",
                     total: 1,
-        
-
                 },
+
                 Paid: { 
                     $push: {
                     $cond: [
@@ -145,15 +145,15 @@ const totalAmount = (async ( req , res) => {
                 }
                 }
             },
-            {
-                $project: {
-                    customer_id: "$_id.customer_id",
-                    status: "$_id.status",
-                    total: 1,
-                    Paid: "$Paid.paid",
-                    Unpaid: "$Unpaid.unpaid"
-                }
-            }
+            // {
+            //     $project: {
+            //         customer_id: "$_id.customer_id",
+            //         status: "$_id.status",
+            //         total: 1,
+            //         Paid: "$Paid.paid",
+            //         Unpaid: "$Unpaid.unpaid"
+            //     }
+            // }
         ])
         res.status(200).json(data)
         
