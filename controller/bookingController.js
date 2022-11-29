@@ -54,14 +54,14 @@ const status = (async ( req , res) => {
                     
                 }
             },
-            // {
-            //     $project: {
-            //         customer_id: "$_id.Customers",
-            //         status: "$_id.status",
-            //         total: 1,
+            {
+                $project: {
+                    customer_id: "$_id.Customers",
+                    status: "$_id.status",
+                    total: 1,
     
-            //     },
-            // },
+                },
+            },
             
         ])
         
@@ -75,6 +75,7 @@ const status = (async ( req , res) => {
 
 
 const totalAmount = (async ( req , res) => {
+    
     try {
         const data = await Booking.aggregate([
            
@@ -104,6 +105,8 @@ const totalAmount = (async ( req , res) => {
                     _id: {
                     customer_id: "$customer_id",
                     status: "$status",
+                    paid: "$paid",
+                    unpaid: "$unpaid",
                     amount: "$amount",
                  },
                     total: 
@@ -111,21 +114,14 @@ const totalAmount = (async ( req , res) => {
 
                 }
             },
-    {
-        $addFields: {
-            paidAmount : "$paid.total",
-            unpaidAmount : "$unpaid.total"
-        }
-    },
-    //         {
-    //             $project: {
-    //                 // _id: 0,
-                    
-    //                 customer_id: "$_id.customer_id",
-    //                 status: "$_id.status",
-    //                 total: 1,
-    //             },
-{
+    // {
+    //     $addFields: {
+    //         paidAmount : "$total.paid",
+    //         unpaidAmount : "$total.unpaid"
+    //     }
+    // },
+    
+           {
                 Paid: { 
                     $push: {
                     $cond: [
@@ -137,6 +133,7 @@ const totalAmount = (async ( req , res) => {
                     ]
                 }   
                 },
+
                 Unpaid: {
                     $push: {
                     $cond: [
@@ -156,7 +153,16 @@ const totalAmount = (async ( req , res) => {
                     Paid: "$Paid.paid",
                     Unpaid: "$Unpaid.unpaid"
                 }
-            }
+            },
+            {
+                $project: {
+                customer_id:1,
+                Paid:1,
+                Unpaid:1,  
+                Total: { $sum: ["$Paid", "$Unpaid"] },
+                Status: { $cond: [{ $eq: [ "Paid", "Unpaid"] }]}
+                    }       
+             }    
         ])
         res.status(200).json(data)
         console.log(data)
