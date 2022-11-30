@@ -73,6 +73,17 @@ const status = (async ( req , res) => {
 })
 
 
+//resut
+// [
+//     {
+//         cust_id,
+//         paid: 100
+//         unpaid: 200
+//         total:300
+//         status
+//     },
+
+// ]
 
 const totalAmount = (async ( req , res) => {
     
