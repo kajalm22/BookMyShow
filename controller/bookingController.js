@@ -79,10 +79,14 @@ const status = (async ( req , res) => {
 //         cust_id,
 //         paid: 100
 //         unpaid: 200
-//         total:300
-//         status
+//         total:300    
 //     },
-
+// {
+//     cust_id,
+//     paid: 350,
+//     unpaid: 0,
+//     total:350
+// }
 // ]
 
 const totalAmount = (async ( req , res) => {
@@ -92,10 +96,10 @@ const totalAmount = (async ( req , res) => {
            
             {
                 $lookup: {
-                    from: "customers",
-                    localField:"Customers",
-                    foreignField:"_id",
-                    as:"details"
+                    from: "customers",     
+                    localField:"Customers",  
+                    foreignField:"_id",      
+                    as:"details"           
                 }
             },
 
@@ -114,14 +118,15 @@ const totalAmount = (async ( req , res) => {
             {
                 $group: {
                     _id: {
-                    customer_id: "$customer_id",
+                    customer_id: "$Customers",
                     status: "$status",
                     paid: "$paid",
                     unpaid: "$unpaid",
                     amount: "$amount",
                  },
                     total: 
-                    { $sum: "$amount"}
+                    { $sum: "$amount"},
+                    
 
                 }
             },
@@ -132,48 +137,48 @@ const totalAmount = (async ( req , res) => {
     //     }
     // },
     
-           {
-                Paid: { 
-                    $push: {
-                    $cond: [
-                        {
-                            $eq : [ "$status" , "paid"] 
-                        },
-                            { paid: "$total"},
+        //    {
+        //         Paid: { 
+        //             $push: {
+        //             $cond: [
+        //                 {
+        //                     $eq : [ "$status" , "paid"] 
+        //                 },
+        //                     { paid: "$total"},
                         
-                    ]
-                }   
-                },
+        //             ]
+        //         }   
+        //         },
 
-                Unpaid: {
-                    $push: {
-                    $cond: [
-                        {
-                            $eq: ["$status" , "unpaid"]
-                        },
-                            { unpaid: "$total"}
-                    ]
-                } }               
-            },
+        //         Unpaid: {
+        //             $push: {
+        //             $cond: [
+        //                 {
+        //                     $eq: ["$status" , "unpaid"]
+        //                 },
+        //                     { unpaid: "$total"}
+        //             ]
+        //         } }               
+        //     },
             
-            {
-                $project: {
-                    customer_id: "$_id.customer_id",
-                    status: "$_id.status",
-                    total: 1,
-                    Paid: "$Paid.paid",
-                    Unpaid: "$Unpaid.unpaid"
-                }
-            },
-            {
-                $project: {
-                customer_id:1,
-                Paid:1,
-                Unpaid:1,  
-                Total: { $sum: ["$Paid", "$Unpaid"] },
-                Status: { $cond: [{ $eq: [ "Paid", "Unpaid"] }]}
-                    }       
-             }    
+            // {
+            //     $project: {
+            //         customer_id: "$_id.customer_id",
+            //         status: "$_id.status",
+            //         total: 1,
+            //         // Paid: "$Paid.paid",
+            //         // Unpaid: "$Unpaid.unpaid"
+            //     }
+            // },
+            // {
+            //     $project: {
+            //     customer_id:1,
+            //     Paid:1,
+            //     Unpaid:1,  
+            //     Total: { $sum: ["$Paid", "$Unpaid"] },
+            //     Status: { $cond: [{ $eq: [ "Paid", "Unpaid"] }]}
+            //         }       
+            //  }    
         ])
         res.status(200).json(data)
         console.log(data)
@@ -186,4 +191,14 @@ const totalAmount = (async ( req , res) => {
 
 
 
-module.exports = { newBooking , status , totalAmount}
+const deleteBooking = ( async ( req , res) => {
+    try {
+        const booking = await Booking.deleteOne({ _id: req.params.id})
+        res.status(200).json(booking )
+        
+    } catch (error) {
+        res.status(500).json("Booking could not be deleted")
+    }
+})
+
+module.exports = { newBooking , status , totalAmount , deleteBooking}
