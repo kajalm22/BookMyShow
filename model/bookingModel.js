@@ -23,7 +23,8 @@ const bookingSchema = mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["CONFIRMED", "CANCELED"],
+      enum: ["paid", "unpaid"],
+      default: "unpaid"
     },
     bookingID: {
       type: Number,
@@ -33,12 +34,7 @@ const bookingSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    paid: {
-      type:Number,
-    },
-    unpaid: {
-      type: Number
-    }
+  
 
   },
 

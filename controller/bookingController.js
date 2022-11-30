@@ -3,7 +3,7 @@ const Customers = require("../model/custModel")
 
 
 const newBooking = (async (req , res) => {
-    const { Customers , Movies , status , seats , amount , paid , unpaid} = req.body
+    const { Customers , Movies , status , seats , amount } = req.body
 
     const data = await Booking.create({
         Customers , 
@@ -11,8 +11,7 @@ const newBooking = (async (req , res) => {
         seats,
         status,
         amount,
-        paid,
-        unpaid
+        
     })
 
     if(data){
@@ -73,7 +72,7 @@ const status = (async ( req , res) => {
 })
 
 
-//resut
+//result
 // [
 //     {
 //         cust_id,
@@ -89,90 +88,83 @@ const status = (async ( req , res) => {
 // }
 // ]
 
+
 const totalAmount = (async ( req , res) => {
-    
-    try {
-        const data = await Booking.aggregate([
-           
-            {
-                $lookup: {
-                    from: "customers",     
-                    localField:"Customers",  
-                    foreignField:"_id",      
-                    as:"details"           
-                }
-            },
+            try {
+                const result = await Booking.aggregate([
 
-            { $unwind: "$details"},
-
-            // {
-            //     $project: {
-            //         customer_id: "$_id.customer_id",
-            //         status: "$_id.status",
-            //         amount: 1,
-            //         total: 1,
-            //     }
-            // },
-           
-            //
-            {
-                $group: {
-                    _id: {
-                    customer_id: "$Customers",
-                    status: "$status",
-                    paid: "$paid",
-                    unpaid: "$unpaid",
-                    // amount: "$amount",
-                 },
-                    total: 
-                    { $sum: "$amount"},
-                    
-
-                }
-            },
-    // {
-    //     $addFields: {
-    //         paidAmount : "$total.paid",
-    //         unpaidAmount : "$total.unpaid"
-    //     }
-    // },
-    
-        //    {
-        //         Paid: { 
-        //             $push: {
-        //             $cond: [
-        //                 {
-        //                     $eq : [ "$status" , "paid"] 
-        //                 },
-        //                     { paid: "$total"},
+                    {
+                        $lookup:{
+                            from: "customers",           
+                            localField: "Customers" ,   
+                            foreignField: "_id",       
+                            as: "bookingDetail"
+                        }
+                    },
+                    {
+                        $unwind:{
+                            path: "$bookingDetail"
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {
+                                customer_id: "$Customers",
+                                status: "$status",
+                            },
+                            total: { $sum: "$amount" },
+                            detail: {$push: '$$ROOT'}
+                        },
+                    }, 
+                    {
+                            Paid: {
+                                $push: {
+                                    $cond: [
+                                        { $eq: ["$status", "paid"] },
+                                        { paid: "$total" },
+                                        
+                                    ],
+                                },
+                            },
+                            Unpaid: {
+                                $push: {
+                                    $cond: [
+                                        { $eq: ["$status", "unpaid"] },
+                                        { unpaid: "$total" },
+                                        
+                                        
+                                    ],
+                                },
+                            },
                         
-        //             ]
-        //         }   
-        //         },
-
-        //         Unpaid: {
-        //             $push: {
-        //             $cond: [
-        //                 {
-        //                     $eq: ["$status" , "unpaid"]
-        //                 },
-        //                     { unpaid: "$total"}
-        //             ]
-        //         } }               
-        //     },
-            
-            // {
-            //     $project: {
-            //         customer_id: "$_id.customer_id",
-            //         status: "$_id.status",
-            //         total: 1,
-            //         // Paid: "$Paid.paid",
-            //         // Unpaid: "$Unpaid.unpaid"
-            //     }
-            // },
-               
-        ])
-        res.status(200).json(data)
+                        },
+                   
+                    // {
+                    //     $project: {
+                            
+                    //         customer_id: "$_id.Customers",
+                            
+                    //         Paid: { $arrayElemAt: ["$Paid", 0] },
+                    //         Unpaid: { $arrayElemAt: ["$Unpaid", 0] },
+        
+                    //     },
+                    // },
+                   
+                    {
+                        $project:{
+                        
+                        customer_id:"$_id.Customers",
+                        Unpaid: { $ifNull: ["$Unpaid", 0] },
+                        Paid: { $ifNull: ["$Paid", 0] }, 
+                        Total: { $sum: ["$Paid", "$Unpaid"] },
+                        Status: { $cond: [{ $eq: ["$Unpaid", 0] }, "Paid", "Unpaid"] }
+                 
+                }
+            }
+        
+                    
+                ]);
+        res.status(200).json(result)
         // console.log(data)
         
     } catch (error) {
@@ -181,6 +173,22 @@ const totalAmount = (async ( req , res) => {
 
 })
 
+
+
+const updateBooking = (async (req, res) => {
+
+    const updated = await Booking.findByIdAndUpdate( 
+     req.params.id,
+      req.body
+    );
+    if (updated) {
+      res.status(200).json(updated);
+    } else {
+      res.status(400);
+  
+      throw new Error("Booking details could not be updated!");
+    }
+  });
 
 
 const deleteBooking = ( async ( req , res) => {
@@ -193,4 +201,4 @@ const deleteBooking = ( async ( req , res) => {
     }
 })
 
-module.exports = { newBooking , status , totalAmount , deleteBooking}
+module.exports = { newBooking , status , totalAmount , deleteBooking , updateBooking }

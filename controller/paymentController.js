@@ -38,7 +38,7 @@ const newPayment = (async ( req , res) => {
         amount,
         status,
         total,
-        // transaction_id
+        
     })
 
     if(data){
@@ -50,44 +50,6 @@ const newPayment = (async ( req , res) => {
     }
 })
 
-
-// const status = (async ( req , res) => {
-//     try {
-//         const data = await Payment.aggregate([
-//             {
-//                 $group: {
-//                     customer_id: "$customer_id",
-//                     status: "$status",
-//                     amount: "$amount",
-//                     total: 
-//                     { $sum: "$total"}
-                    
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     //  _id: 0,
-//                     total: 1,
-//                     customer_id: "$_id.customer_id",
-//                     status: "$_id.status"
-    
-//                 },
-//             },
-//             {
-//                 $lookup:{
-//                     from: "Customers",
-//                     localField: "payment_id" ,
-//                     foreignField: "customer_id",
-//                     as: "PaymentDetails"
-//                 }
-//             }
-//         ])
-//         res.status(200).json(data)
-        
-//     } catch (error) {
-//         res.status(500).json(error)
-//     }
-// })
 
 
 // const totalAmount = (async ( req , res) => {
