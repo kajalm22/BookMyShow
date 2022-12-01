@@ -116,34 +116,32 @@ const totalAmount = (async ( req , res) => {
                             detail: {$push: '$$ROOT'}
                         },
                     }, 
-                    {
-                            Paid: {
-                                $push: {
-                                    $cond: [
-                                        { $eq: ["$status", "paid"] },
-                                        { paid: "$total" },
+                    // {
+                    //         Paid: {
+                    //             $push: {
+                    //                 $cond: [
+                    //                     { $eq: ["$status", "paid"] },
+                    //                     { paid: "$total" },
                                         
-                                    ],
-                                },
-                            },
-                            Unpaid: {
-                                $push: {
-                                    $cond: [
-                                        { $eq: ["$status", "unpaid"] },
-                                        { unpaid: "$total" },
+                    //                 ],
+                    //             },
+                    //         },
+                    //         Unpaid: {
+                    //             $push: {
+                    //                 $cond: [
+                    //                     { $eq: ["$status", "unpaid"] },
+                    //                     { unpaid: "$total" },
                                         
                                         
-                                    ],
-                                },
-                            },
+                    //                 ],
+                    //             },
+                    //         },
                         
-                        },
+                    //     },
                    
                     // {
                     //     $project: {
-                            
-                    //         customer_id: "$_id.Customers",
-                            
+                    
                     //         Paid: { $arrayElemAt: ["$Paid", 0] },
                     //         Unpaid: { $arrayElemAt: ["$Unpaid", 0] },
         
@@ -156,12 +154,9 @@ const totalAmount = (async ( req , res) => {
                         customer_id:"$_id.Customers",
                         Unpaid: { $ifNull: ["$Unpaid", 0] },
                         Paid: { $ifNull: ["$Paid", 0] }, 
-                        Total: { $sum: ["$Paid", "$Unpaid"] },
-                        Status: { $cond: [{ $eq: ["$Unpaid", 0] }, "Paid", "Unpaid"] }
-                 
-                }
-            }
-        
+                        Total: { $sum: ["$Paid", "$Unpaid"] }
+                       }
+                    }
                     
                 ]);
         res.status(200).json(result)
