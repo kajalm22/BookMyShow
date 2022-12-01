@@ -7,11 +7,11 @@ const paymentSchema = new  mongoose.Schema(
       required: true,
       ref: "Customers",
     },
-    Booking: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "Booking",
-    },
+    // Booking: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   required: true,
+    //   ref: "Booking",
+    // },
 
     paymentType: {
       type: String,
@@ -29,17 +29,13 @@ const paymentSchema = new  mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["PAID", "UNPAID"],
+      enum: ["paid", "unpaid"],
     },
     total:{
       type: Number,
       required: true
     },
 
-    transactionID: {
-      type: Number,
-      
-    },
   },
   {
     // timestamps: true,

@@ -12,6 +12,11 @@ const bookingSchema = mongoose.Schema(
       required: true,
       ref: "Movies",
     },
+    Payments: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Payment"
+    },
   
 
     seats: {
@@ -24,7 +29,7 @@ const bookingSchema = mongoose.Schema(
       type: String,
       required: true,
       enum: ["paid", "unpaid"],
-      default: "unpaid"
+      // default: "unpaid"
     },
     bookingID: {
       type: Number,
@@ -34,6 +39,7 @@ const bookingSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+
   
 
   },
