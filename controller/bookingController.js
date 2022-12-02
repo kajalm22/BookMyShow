@@ -106,46 +106,38 @@ const totalAmount = (async ( req , res) => {
             try {
                 const result = await Booking.aggregate([
 
-                    {
-                        $lookup:{
-                            from: "customers",           
-                            localField: "Customers" ,   
-                            foreignField: "_id",       
-                            as: "customerDetails"
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "payments",
-                            localField: "Payments",
-                            foreignField: "_id",
-                            as: "paymentDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$paymentDetails"
-                    },
+                    // {
+                    //     $lookup:{
+                    //         from: "customers",           
+                    //         localField: "Customers" ,   
+                    //         foreignField: "_id",       
+                    //         as: "customerDetails"
+                    //     }
+                    // },
+                    // {
+                    //     $lookup: {
+                    //         from: "payments",
+                    //         localField: "Payments",
+                    //         foreignField: "_id",
+                    //         as: "paymentDetails"
+                    //     }
+                    // },
+                    // {
+                    //     $unwind: "$paymentDetails"
+                    // },
                     
-                    {
-                        $unwind: "$customerDetails"
+                    // {
+                    //     $unwind: "$customerDetails"
                     
-                    },
+                    // },
                    
                     {
                         $project: {
                             
-                            "paymentDetails.Customers" : 1,
-                            "paymentDetails.total": 1,
-                            "paymentDetails.status" : 1,
-                            // _id: 0
-                        }
-                    },
-                    {
-                        $addFields: {
-                            Customer_ID : "$paymentDetails.Customers",
-                            Amount: "$paymentDetails.total",
-                            Status: "$paymentDetails.pay_status",
-
+                            "Customer_ID" : "$Customers",
+                            "Amount": "$amount",
+                            "Status" : "$status",
+                            "_id": 0
                         }
                     },
                     
@@ -155,10 +147,10 @@ const totalAmount = (async ( req , res) => {
                                 Customer_ID : "$Customer_ID",
                                 Status: "$Status",
                             },
-                            Amount: { $sum: "$Amount" },
-                            // detail: {$push: "$ROOT"}
+                            Amount: { $sum: "$Amount" }
                         },
                     }, 
+                    
                     {
                         $project: {
                           
@@ -167,7 +159,7 @@ const totalAmount = (async ( req , res) => {
                           Status: "$_id.Status",
                           Amount: 1,
                           _id: 0,
-                        },
+                        }
                       },
                       {
                         $group: {
@@ -181,7 +173,7 @@ const totalAmount = (async ( req , res) => {
                                     $cond: [
                                         { $eq: ["$Status", "paid"] },
                                         { Paid: "$Amount" },
-                                        "$$REMOVE" ,
+                                        "$$REMOVE" 
                                                
                                     ],
                                 },
@@ -191,11 +183,12 @@ const totalAmount = (async ( req , res) => {
                                     $cond: [
                                         { $eq: ["$Status", "unpaid"] },
                                         { Unpaid: "$Amount" }, 
-                                        "$$REMOVE" ,
+                                        "$$REMOVE"
             
                                     ],
                                 },
-                            }    },
+                            }   
+                         },
                       },
                         {
                             $project: {
@@ -205,42 +198,22 @@ const totalAmount = (async ( req , res) => {
                                 isAnyTrueU : { $anyElementTrue: ["$U_Unpaid"] },
                                 
                                 Customer_ID: "$_id.Customer_ID",
-                                Paid: { $arrayElemAt: ["$P_Paid.paid", 0] },
-                                Unpaid: { $arrayElemAt: ["$U_Unpaid.unpaid", 0] },
+                                Paid: { $arrayElemAt: ["$P_Paid", 0] },
+                                Unpaid: { $arrayElemAt: ["$U_Unpaid", 0] },
                             }
                         },
                         {
                             $project: {
                                 Customer_ID: 1,
-                                Paid: 1,
-                                Unpaid: 1,
-                
+                                _id:0,
                                 Paid: {
-                                    $cond: [{ $eq: ["$isAnyTrueP", false] }, 0, { Paid: "$paid" }],
+                                    $cond: [{ $eq: ["$isAnyTrueP", false] }, 0, "$Paid.Paid" ],
                                   },
                 
                                 Unpaid: {
-                                    $cond: [{ $eq: ["$isAnyTrueU", false] }, 0, { Unpaid: "$unpaid" }],
+                                    $cond: [{ $eq: ["$isAnyTrueU", false] }, 0, "$Unpaid.Unpaid" ],
                                   },
                 
-                            }
-                        },
-                        { 
-                            $project: {
-                                Customer_ID: 1,
-                                Paid: {
-                                    $cond: [
-                                        {
-                                            $eq: ["$Paid" , 0] } , 0 , "$Paid.paid" ]},
-                                Unpaid:  {
-                                    $cond: [
-                                        {
-                                            $eq: ["$Unpaid" , 0]
-                                        } , 0 , "$Unpaid.unpaid"
-                                    ]
-                                }  ,
-                                _id: 0             
-                                
                             }
                         },
                         {
@@ -249,8 +222,8 @@ const totalAmount = (async ( req , res) => {
                               Customer_ID: 1,
                               Paid: 1,
                               Unpaid: 1,
-                              Total: { $sum: ["$paid", "$unpaid"] },
-                              Status: { $cond: [{ $eq: ["$unpaid", 0] }, "paid", "unpaid"] },
+                              Total: { $sum: ["$Paid", "$Unpaid"] },
+                              Status: { $cond: [{ $eq: ["$Unpaid", 0] }, "paid", "unpaid"] },
                             },
                         }
                     
