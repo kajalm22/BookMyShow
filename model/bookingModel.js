@@ -14,7 +14,7 @@ const bookingSchema = mongoose.Schema(
     },
     Payments: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: "Payment"
     },
   

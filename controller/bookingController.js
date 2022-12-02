@@ -8,6 +8,7 @@ const newBooking = (async (req , res) => {
     const data = await Booking.create({
         Customers , 
         Movies,
+        // Payments,
         seats,
         status,
         amount,
@@ -24,63 +25,58 @@ const newBooking = (async (req , res) => {
 })
 
 
-// const status = (async ( req , res) => {
-//     try {
-//         const data = await Booking.aggregate([
-//         {
-//             $lookup:{
-//                 from: "customers",           //collection name which is to be joined
-//                 localField: "Customers" ,   //from booking schema 
-//                 foreignField: "_id",       //field from customer collection
-//                 as: "customerDetail"
-//             }
-//         },
-//         // {
-//         //     $lookup: {
-//         //         from: "payments",
-//         //         localField: "Payments",
-//         //         foreignField: "_id",
-//         //         as: "paymentStatus"
+const status = (async ( req , res) => {
+    try {
+        const data = await Booking.aggregate([
+        {
+            $lookup:{
+                from: "customers",           //collection name which is to be joined
+                localField: "Customers" ,   //from booking schema 
+                foreignField: "_id",       //field from customer collection
+                as: "customerDetail"
+            }
+        },
+        
+        { $unwind: "$customerDetail"},
 
-//         //     }
-//         // },
-//         { $unwind: "$customerDetail"},
-//         // { $unwind: "paymentStatus"},
-
-//             {
-//                 $group: {
-//                     _id: {
-//                         customer_id: "$Customers",
-//                         status: "$status",
+            {
+                $group: {
+                    _id: {
+                        
+                        customer_id: "$Customers",
+                        status: "$status",
                     
-//                     },
-//                     total: 
-//                     { $sum: "$amount"},
-//                     detail: {$push: '$$ROOT'}
+                    },
+                    total: 
+                    { $sum: "$amount"},
+                  
+                    // detail: {$push: '$$ROOT'}
                     
-//                 }
-//             },
-
-            
-//             {
-//                 $project: {
-//                     _id: 0,
-//                     customer_id: "$_id.customer_id",
-//                     status: "$_id.status",
-//                     total: 1,
+                }
+            },
+         
+            {
+                $project: {
+                    _id: 0,
+                    customer_id: "$_id.customer_id",
+                    status: "$_id.status",
+                    total: 1
+                   
+                },
+                    
                     
     
-//                 },
-//             },
+                
+            },
     
-//         ])
+        ])
         
-//         res.status(200).json(data)
+        res.status(200).json(data)
         
-//     } catch (error) {
-//         res.status(500).json(error)
-//     }
-// })
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
 
 
 //result
@@ -292,5 +288,5 @@ const deleteBooking = ( async ( req , res) => {
 })
 
 module.exports = { newBooking , 
-    // status , 
+    status , 
     totalAmount , deleteBooking , updateBooking }
