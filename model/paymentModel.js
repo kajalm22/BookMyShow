@@ -7,11 +7,11 @@ const paymentSchema = new  mongoose.Schema(
       required: true,
       ref: "Customers",
     },
-    // Booking: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   required: true,
-    //   ref: "Booking",
-    // },
+    Booking: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Booking",
+    },
 
     paymentType: {
       type: String,
@@ -26,7 +26,7 @@ const paymentSchema = new  mongoose.Schema(
         "Please pay the amount to complete the booking process.",
       ],
     },
-    status: {
+    pay_status: {
       type: String,
       required: true,
       enum: ["paid", "unpaid"],

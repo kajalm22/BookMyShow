@@ -25,6 +25,19 @@ const newBooking = (async (req , res) => {
 })
 
 
+// result
+// [
+//     {
+//         cust_id,
+//         paid: total paid by one cust,
+//         satus:paid
+//     },
+//     {
+//         cust_id,
+//         unpaid: total unpaid by one cust,
+//         status: unpaid
+//     }
+// ]
 const status = (async ( req , res) => {
     try {
         const data = await Booking.aggregate([
@@ -44,13 +57,13 @@ const status = (async ( req , res) => {
                     _id: {
                         
                         customer_id: "$Customers",
+                        cust_first : "$customerDetail.firstName" , 
+                        cust_last : "$customerDetail.lastName",
                         status: "$status",
                     
                     },
                     total: 
                     { $sum: "$amount"},
-                  
-                    // detail: {$push: '$$ROOT'}
                     
                 }
             },
@@ -59,14 +72,13 @@ const status = (async ( req , res) => {
                 $project: {
                     _id: 0,
                     customer_id: "$_id.customer_id",
+                    fullName: { $concat: [ "$_id.cust_first" , " " , "$_id.cust_last"]},
+                    // customer_name: "$_id.cust_name", 
                     status: "$_id.status",
                     total: 1
                    
                 },
-                    
-                    
-    
-                
+                           
             },
     
         ])
@@ -99,7 +111,7 @@ const totalAmount = (async ( req , res) => {
                             from: "customers",           
                             localField: "Customers" ,   
                             foreignField: "_id",       
-                            as: "bookingDetails"
+                            as: "customerDetails"
                         }
                     },
                     {
@@ -110,119 +122,121 @@ const totalAmount = (async ( req , res) => {
                             as: "paymentDetails"
                         }
                     },
-                    
-                    {
-                        $unwind: "$bookingDetails"
-                    
-                    },
                     {
                         $unwind: "$paymentDetails"
                     },
-                    // {
-                    // detail: {$push: '$$ROOT'}
-                    // },
+                    
+                    {
+                        $unwind: "$customerDetails"
+                    
+                    },
                    
                     {
                         $project: {
                             
-                            "paymentDetails.customer_id" : 1,
+                            "paymentDetails.Customers" : 1,
                             "paymentDetails.total": 1,
                             "paymentDetails.status" : 1,
-                            _id:0,
+                            // _id: 0
                         }
                     },
                     {
                         $addFields: {
-                            Customer_id: "$paymentDetails.Customers",
+                            Customer_ID : "$paymentDetails.Customers",
                             Amount: "$paymentDetails.total",
-                            Status: "paymentDetails.status",
+                            Status: "$paymentDetails.pay_status",
 
                         }
                     },
-                    // { $project: 
-                    //     { 
-                    //         paymentDetails: 0, bookingDetails: 0
-                    //      }
-                    //      },
                     
                     {
                         $group: {
                             _id: {
-                                Customer_id: "$Customers",
+                                Customer_ID : "$Customer_ID",
                                 Status: "$Status",
                             },
                             Amount: { $sum: "$Amount" },
-                            
+                            // detail: {$push: "$ROOT"}
                         },
                     }, 
                     {
                         $project: {
                           
-                          Customer_id: "$_id.Customer_id",
+                          Customer_ID: "$_id.Customer_ID",
+                          
                           Status: "$_id.Status",
                           Amount: 1,
                           _id: 0,
                         },
                       },
-                    {
+                      {
+                        $group: {
+                            _id:
+                        {
+                            Customer_ID: "$Customer_ID"
+                        },
+                      
                             P_Paid: {
                                 $push: {
                                     $cond: [
-                                        { $eq: ["$Status", "Paid"] },
+                                        { $eq: ["$Status", "paid"] },
                                         { Paid: "$Amount" },
-                                        
+                                        "$$REMOVE" ,
+                                               
                                     ],
                                 },
                             },
                             U_Unpaid: {
                                 $push: {
                                     $cond: [
-                                        { $eq: ["$Status", "Unpaid"] },
-                                        { Unpaid: "$Amount" },
+                                        { $eq: ["$Status", "unpaid"] },
+                                        { Unpaid: "$Amount" }, 
+                                        "$$REMOVE" ,
             
                                     ],
                                 },
-                            },
-                        },
+                            }    },
+                      },
                         {
                             $project: {
-                                isAnyTrue : { $anyElementTrue: ["$P_Paid"] },
-                
-                                isAnyTrue : { $anyElementTrue: ["$U_Unpaid"] },
                                 _id: 1,
-                                Customer_id: "$_id.Customer_id",
-                                Paid: { $arrayElemAt: ["$P_Paid.Paid", 0] },
-                                Unpaid: { $arrayElemAt: ["$U_Unpaid.Unpaid", 0] },
+                                isAnyTrueP : { $anyElementTrue: ["$P_Paid"] },
+                
+                                isAnyTrueU : { $anyElementTrue: ["$U_Unpaid"] },
+                                
+                                Customer_ID: "$_id.Customer_ID",
+                                Paid: { $arrayElemAt: ["$P_Paid.paid", 0] },
+                                Unpaid: { $arrayElemAt: ["$U_Unpaid.unpaid", 0] },
                             }
                         },
                         {
                             $project: {
-                                Customer_id: 1,
+                                Customer_ID: 1,
                                 Paid: 1,
                                 Unpaid: 1,
                 
                                 Paid: {
-                                    $cond: [{ $eq: ["$isAnyTrue", false] }, 0, { Paid: "$Paid" }],
+                                    $cond: [{ $eq: ["$isAnyTrueP", false] }, 0, { Paid: "$paid" }],
                                   },
                 
                                 Unpaid: {
-                                    $cond: [{ $eq: ["$isAnyTrue", false] }, 0, { Unpaid: "$Unpaid" }],
+                                    $cond: [{ $eq: ["$isAnyTrueU", false] }, 0, { Unpaid: "$unpaid" }],
                                   },
                 
                             }
                         },
                         { 
                             $project: {
-                                Customer_id: 1,
+                                Customer_ID: 1,
                                 Paid: {
                                     $cond: [
                                         {
-                                            $eq: ["$Paid" , 0] } , 0 , "$Paid.Paid" ]},
+                                            $eq: ["$Paid" , 0] } , 0 , "$Paid.paid" ]},
                                 Unpaid:  {
                                     $cond: [
                                         {
                                             $eq: ["$Unpaid" , 0]
-                                        } , 0 , "$Unpaid.Unpaid"
+                                        } , 0 , "$Unpaid.unpaid"
                                     ]
                                 }  ,
                                 _id: 0             
@@ -231,23 +245,24 @@ const totalAmount = (async ( req , res) => {
                         },
                         {
                             $project: {
-                              Customer_id: 1,
+                            //   _id:0,
+                              Customer_ID: 1,
                               Paid: 1,
                               Unpaid: 1,
-                              Total: { $sum: ["$Paid", "$Unpaid"] },
-                              Status: { $cond: [{ $eq: ["$Unpaid", 0] }, "Paid", "Unpaid"] },
+                              Total: { $sum: ["$paid", "$unpaid"] },
+                              Status: { $cond: [{ $eq: ["$unpaid", 0] }, "paid", "unpaid"] },
                             },
-                          }
+                        }
                     
-                    // {
-                    //     $project:{
-                    //     customer_id:"$_id.customer_id",
-                    //     Unpaid: { $ifNull: ["$Amount_Unpaid" , "null"] },
-                    //     Paid: { $ifNull: ["$Amount_Paid" , "null"] }, 
-                    //     Total: { $sum: ["$Amount_Paid", "$Amount_Unpaid" ] },
-                    //     _id: 0,
-                    //    }
-                    // },
+                    // // {
+                    // //     $project:{
+                    // //     customer_id:"$_id.customer_id",
+                    // //     Unpaid: { $ifNull: ["$Amount_Unpaid" , "null"] },
+                    // //     Paid: { $ifNull: ["$Amount_Paid" , "null"] }, 
+                    // //     Total: { $sum: ["$Amount_Paid", "$Amount_Unpaid" ] },
+                    // //     _id: 0,
+                    // //    }
+                    // // },
        
                 ]);
         res.status(200).json(result)
