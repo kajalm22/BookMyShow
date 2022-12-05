@@ -252,7 +252,7 @@ const lastEntry = (async ( req , res) => {
     try {
         const result = await Booking.aggregate([
             // {
-            //     $sort: { _id: 1, Movies: 1 , seats: 1}
+            //     $sort: { _id: 1, createdAt: 1 }
             // },
             {
                 $group: {
@@ -274,7 +274,6 @@ const lastEntry = (async ( req , res) => {
                     seats: "$data.seats",
                     status: "$data.status",
                     amount: "$data.amount",
-                    payment: "$data.Payments",
                     createdAt: "$data.createdAt"
                 }
             }
