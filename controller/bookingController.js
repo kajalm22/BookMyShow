@@ -248,6 +248,46 @@ const totalAmount = (async ( req , res) => {
 })
 
 
+const lastEntry = (async ( req , res) => {
+    try {
+        const result = await Booking.aggregate([
+            // {
+            //     $sort: { _id: 1, Movies: 1 , seats: 1}
+            // },
+            {
+                $group: {
+                    _id: {
+                        customer_id: "$Customers",
+
+                    },
+                    data: {
+                        $last: "$$ROOT"
+                    }
+                }
+            },
+
+            {
+                $project: {
+                    _id: 0,
+                    customer_id : "$_id.customer_id",
+                    movies: "$data.Movies",
+                    seats: "$data.seats",
+                    status: "$data.status",
+                    amount: "$data.amount",
+                    payment: "$data.Payments",
+                    createdAt: "$data.createdAt"
+                }
+            }
+        ])
+        res.status(200).json(result)
+        
+    } catch (error) {
+        console.log("error")
+    }
+
+})
+
+
 
 const updateBooking = (async (req, res) => {
 
@@ -277,4 +317,5 @@ const deleteBooking = ( async ( req , res) => {
 
 module.exports = { newBooking , 
     status , 
-    totalAmount , deleteBooking , updateBooking }
+    totalAmount ,
+    lastEntry, deleteBooking , updateBooking }
